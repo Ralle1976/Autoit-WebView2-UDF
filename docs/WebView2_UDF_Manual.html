@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebView2 Native UDF - Handbuch</title>
+    <style>
+        :root {
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #252542;
+            --accent: #6366f1;
+            --accent-hover: #818cf8;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #2d2d4a;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 24px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 24px 24px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .sidebar-header h1 {
+            font-size: 20px;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .sidebar-header .version {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .nav-section {
+            padding: 8px 16px;
+        }
+
+        .nav-section h3 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            padding: 0 8px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 8px 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.15s;
+        }
+
+        .nav-link:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Main Content */
+        .main {
+            padding: 48px;
+            max-width: 900px;
+        }
+
+        h2 {
+            font-size: 28px;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        h3 {
+            font-size: 20px;
+            color: var(--accent);
+            margin: 32px 0 16px;
+        }
+
+        h4 {
+            font-size: 16px;
+            color: var(--text-primary);
+            margin: 24px 0 12px;
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+        }
+
+        /* Code Blocks */
+        pre {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+
+        code {
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .inline-code {
+            background: var(--bg-tertiary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        /* Function Reference */
+        .function-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .function-card h4 {
+            color: var(--accent);
+            font-family: 'Fira Code', monospace;
+            font-size: 18px;
+            margin: 0 0 16px 0;
+        }
+
+        .function-card .description {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .param-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+
+        .param-table th {
+            text-align: left;
+            padding: 10px 12px;
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .param-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .param-table .param-name {
+            font-family: 'Fira Code', monospace;
+            color: var(--accent);
+        }
+
+        .param-table .param-type {
+            color: var(--warning);
+            font-size: 12px;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-required {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--error);
+        }
+
+        .badge-optional {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--accent);
+        }
+
+        .badge-return {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        /* Info Boxes */
+        .info-box {
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 16px 0;
+            border-left: 4px solid;
+        }
+
+        .info-box.tip {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--success);
+        }
+
+        .info-box.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--warning);
+        }
+
+        .info-box.note {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--accent);
+        }
+
+        .info-box h5 {
+            font-size: 13px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .info-box.tip h5 { color: var(--success); }
+        .info-box.warning h5 { color: var(--warning); }
+        .info-box.note h5 { color: var(--accent); }
+
+        /* Feature List */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .feature-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .feature-item h5 {
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .feature-item p {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        /* Requirements List */
+        .requirements-list {
+            list-style: none;
+            margin: 16px 0;
+        }
+
+        .requirements-list li {
+            padding: 8px 0;
+            padding-left: 28px;
+            position: relative;
+            color: var(--text-secondary);
+        }
+
+        .requirements-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--border);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: relative;
+                height: auto;
+            }
+            .main {
+                padding: 24px;
+            }
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1>WebView2 UDF</h1>
+                <span class="version">Native Edition v2.0</span>
+            </div>
+
+            <div class="nav-section">
+                <h3>Erste Schritte</h3>
+                <a href="#introduction" class="nav-link">Einführung</a>
+                <a href="#requirements" class="nav-link">Voraussetzungen</a>
+                <a href="#installation" class="nav-link">Installation</a>
+                <a href="#quickstart" class="nav-link">Schnellstart</a>
+            </div>
+
+            <div class="nav-section">
+                <h3>Grundlagen</h3>
+                <a href="#architecture" class="nav-link">Architektur</a>
+                <a href="#lifecycle" class="nav-link">Lebenszyklus</a>
+                <a href="#communication" class="nav-link">JS-Kommunikation</a>
+            </div>
+
+            <div class="nav-section">
+                <h3>API-Referenz</h3>
+                <a href="#core-functions" class="nav-link">Kernfunktionen</a>
+                <a href="#navigation" class="nav-link">Navigation</a>
+                <a href="#scripting" class="nav-link">Scripting</a>
+                <a href="#callbacks" class="nav-link">Callbacks</a>
+            </div>
+
+            <div class="nav-section">
+                <h3>Beispiele</h3>
+                <a href="#example-basic" class="nav-link">Einfaches Beispiel</a>
+                <a href="#example-hybrid" class="nav-link">Hybrid-GUI</a>
+                <a href="#example-app" class="nav-link">SQLite Manager</a>
+            </div>
+        </nav>
+
+        <main class="main">
+            <!-- Introduction -->
+            <section id="introduction">
+                <h2>Einführung</h2>
+                <p>
+                    Die <strong>WebView2 Native UDF</strong> ermöglicht die Integration des Microsoft Edge WebView2
+                    Controls in AutoIt-Anwendungen. Im Gegensatz zu OCX-basierten Lösungen arbeitet diese UDF
+                    direkt mit der COM-Schnittstelle und benötigt keine zusätzlichen Registrierungen.
+                </p>
+
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <h5>Native COM-Integration</h5>
+                        <p>Direkter Zugriff auf WebView2 ohne OCX-Wrapper oder Registrierung.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h5>Moderne Web-UI</h5>
+                        <p>Vollständige HTML5, CSS3 und ES6+ Unterstützung via Chromium-Engine.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h5>Bidirektionale Kommunikation</h5>
+                        <p>Nahtlose Datenübertragung zwischen JavaScript und AutoIt.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h5>Non-Blocking Design</h5>
+                        <p>Asynchrone Callbacks halten die GUI reaktionsfähig.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Requirements -->
+            <section id="requirements">
+                <h2>Voraussetzungen</h2>
+                <ul class="requirements-list">
+                    <li>Windows 10 (1803+) oder Windows 11</li>
+                    <li>AutoIt 3.3.16 oder höher</li>
+                    <li>Microsoft Edge WebView2 Runtime</li>
+                    <li>WebView2Loader.dll (x86/x64)</li>
+                    <li>WebView2Helper.dll (x86/x64) für Callbacks</li>
+                </ul>
+
+                <div class="info-box note">
+                    <h5>Hinweis</h5>
+                    <p>Die WebView2 Runtime ist auf Windows 11 vorinstalliert. Für Windows 10 kann sie
+                    automatisch oder manuell installiert werden.</p>
+                </div>
+            </section>
+
+            <!-- Installation -->
+            <section id="installation">
+                <h2>Installation</h2>
+
+                <h4>1. Dateien kopieren</h4>
+                <p>Kopieren Sie folgende Dateien in Ihr Include-Verzeichnis:</p>
+                <pre><code>Include/
+├── WebView2_Native.au3      ; Haupt-UDF
+├── WebView2_Callbacks.au3   ; Callback-System
+├── WebView2Loader_x64.dll   ; 64-Bit Loader
+├── WebView2Loader_x86.dll   ; 32-Bit Loader
+├── WebView2Helper_x64.dll   ; 64-Bit Helper
+└── WebView2Helper_x86.dll   ; 32-Bit Helper</code></pre>
+
+                <h4>2. Runtime prüfen</h4>
+                <pre><code>#include "Include\WebView2_Native.au3"
+
+If Not _WebView2_IsRuntimeInstalled() Then
+    MsgBox(16, "Fehler", "WebView2 Runtime nicht gefunden!")
+    Exit
+EndIf</code></pre>
+            </section>
+
+            <!-- Quickstart -->
+            <section id="quickstart">
+                <h2>Schnellstart</h2>
+                <p>Ein minimales Beispiel zur Anzeige einer Webseite:</p>
+
+                <pre><code>#include &lt;GUIConstantsEx.au3&gt;
+#include &lt;WindowsConstants.au3&gt;
+#include "Include\WebView2_Native.au3"
+
+; COM initialisieren
+DllCall("ole32.dll", "long", "OleInitialize", "ptr", 0)
+
+; GUI erstellen
+$hGUI = GUICreate("WebView2 Demo", 800, 600, -1, -1, _
+    BitOR($WS_OVERLAPPEDWINDOW, $WS_CLIPCHILDREN))
+GUISetState(@SW_SHOW)
+
+; Message-Pump vor WebView2-Erstellung
+For $i = 1 To 20
+    GUIGetMsg()
+    Sleep(10)
+Next
+
+; WebView2 erstellen
+$aWebView = _WebView2_Create($hGUI, 0, 0, 800, 600)
+If @error Then Exit MsgBox(16, "Fehler", "WebView2 Erstellung fehlgeschlagen!")
+
+; URL navigieren
+_WebView2_Navigate($aWebView, "https://www.autoitscript.com")
+
+; Event-Loop
+While GUIGetMsg() &lt;&gt; $GUI_EVENT_CLOSE
+    Sleep(10)
+WEnd
+
+; Cleanup
+_WebView2_Close($aWebView)
+_WV2CB_Cleanup()
+GUIDelete($hGUI)
+DllCall("ole32.dll", "none", "OleUninitialize")</code></pre>
+            </section>
+
+            <!-- Architecture -->
+            <section id="architecture">
+                <h2>Architektur</h2>
+                <p>Die UDF besteht aus mehreren Komponenten, die zusammenarbeiten:</p>
+
+                <pre><code>┌─────────────────────────────────────────────────────────┐
+│                    AutoIt Application                    │
+├─────────────────────────────────────────────────────────┤
+│  WebView2_Native.au3                                    │
+│  ├── _WebView2_Create()     ; WebView erstellen         │
+│  ├── _WebView2_Navigate()   ; URL laden                 │
+│  ├── _WebView2_ExecuteScript() ; JS ausführen           │
+│  └── _WebView2_PostMessage() ; Nachricht an JS          │
+├─────────────────────────────────────────────────────────┤
+│  WebView2_Callbacks.au3                                 │
+│  ├── _WV2CB_*               ; Callback-Handler          │
+│  └── WebView2Helper.dll     ; Native Callback-Brücke    │
+├─────────────────────────────────────────────────────────┤
+│  WebView2Loader.dll + WebView2 Runtime                  │
+│  └── Chromium Browser Engine                            │
+└─────────────────────────────────────────────────────────┘</code></pre>
+            </section>
+
+            <!-- Communication -->
+            <section id="communication">
+                <h2>JavaScript-Kommunikation</h2>
+
+                <h4>AutoIt → JavaScript</h4>
+                <p>Verwenden Sie <code class="inline-code">_WebView2_ExecuteScriptAsync()</code> für non-blocking Aufrufe:</p>
+                <pre><code>; JavaScript-Funktion aufrufen
+_WebView2_ExecuteScriptAsync($aWebView, "showMessage('Hallo von AutoIt!')")
+
+; Mit Daten
+Local $sJSON = '{"name":"Test","value":42}'
+_WebView2_ExecuteScriptAsync($aWebView, "processData(" & $sJSON & ")")</code></pre>
+
+                <h4>JavaScript → AutoIt</h4>
+                <p>Verwenden Sie <code class="inline-code">postMessage</code> im JavaScript:</p>
+                <pre><code>// JavaScript
+function sendToAutoIt(data) {
+    if (window.chrome && window.chrome.webview) {
+        window.chrome.webview.postMessage(JSON.stringify(data));
+    }
+}
+
+// Beispiel-Aufruf
+sendToAutoIt({action: 'openFile', type: 'db'});</code></pre>
+
+                <p>Empfang in AutoIt:</p>
+                <pre><code>; Callback registrieren
+_WebView2_SetMessageCallback($aWebView, "_OnWebMessage")
+
+; Callback-Funktion
+Func _OnWebMessage($sMessage)
+    ConsoleWrite("Nachricht von JS: " & $sMessage & @CRLF)
+    ; JSON parsen und verarbeiten...
+EndFunc
+
+; Im Event-Loop: Messages verarbeiten
+Func _ProcessWebMessages()
+    Local $sMsg = _WV2CB_GetLastWebMessage()
+    If $sMsg &lt;&gt; "" Then _OnWebMessage($sMsg)
+EndFunc</code></pre>
+
+                <div class="info-box tip">
+                    <h5>Best Practice</h5>
+                    <p>Verwenden Sie JSON für strukturierte Daten zwischen JavaScript und AutoIt.</p>
+                </div>
+            </section>
+
+            <!-- Core Functions -->
+            <section id="core-functions">
+                <h2>Kernfunktionen</h2>
+
+                <div class="function-card">
+                    <h4>_WebView2_Create($hWnd, $iLeft, $iTop, $iWidth, $iHeight)</h4>
+                    <p class="description">Erstellt ein neues WebView2-Control innerhalb eines GUI-Fensters.</p>
+
+                    <table class="param-table">
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Typ</th>
+                            <th>Beschreibung</th>
+                        </tr>
+                        <tr>
+                            <td class="param-name">$hWnd</td>
+                            <td class="param-type">Handle</td>
+                            <td>Handle des Parent-Fensters <span class="badge badge-required">Erforderlich</span></td>
+                        </tr>
+                        <tr>
+                            <td class="param-name">$iLeft, $iTop</td>
+                            <td class="param-type">Int</td>
+                            <td>Position des Controls <span class="badge badge-required">Erforderlich</span></td>
+                        </tr>
+                        <tr>
+                            <td class="param-name">$iWidth, $iHeight</td>
+                            <td class="param-type">Int</td>
+                            <td>Größe des Controls <span class="badge badge-required">Erforderlich</span></td>
+                        </tr>
+                    </table>
+
+                    <p><span class="badge badge-return">Rückgabe</span> Array mit [Controller, WebView2, Environment, HelperDLL] oder @error bei Fehler</p>
+                </div>
+
+                <div class="function-card">
+                    <h4>_WebView2_Close($aWebView)</h4>
+                    <p class="description">Schließt das WebView2-Control und gibt Ressourcen frei.</p>
+
+                    <table class="param-table">
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Typ</th>
+                            <th>Beschreibung</th>
+                        </tr>
+                        <tr>
+                            <td class="param-name">$aWebView</td>
+                            <td class="param-type">Array</td>
+                            <td>WebView2-Array von _WebView2_Create() <span class="badge badge-required">Erforderlich</span></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="function-card">
+                    <h4>_WebView2_SetBounds($aWebView, $iLeft, $iTop, $iWidth, $iHeight)</h4>
+                    <p class="description">Ändert Position und Größe des WebView2-Controls (für Resize-Events).</p>
+                </div>
+
+                <div class="function-card">
+                    <h4>_WebView2_IsRuntimeInstalled()</h4>
+                    <p class="description">Prüft, ob die WebView2 Runtime installiert ist.</p>
+                    <p><span class="badge badge-return">Rückgabe</span> True wenn installiert, False sonst</p>
+                </div>
+            </section>
+
+            <!-- Navigation -->
+            <section id="navigation">
+                <h2>Navigation</h2>
+
+                <div class="function-card">
+                    <h4>_WebView2_Navigate($aWebView, $sUrl)</h4>
+                    <p class="description">Navigiert zu einer URL.</p>
+
+                    <pre><code>_WebView2_Navigate($aWebView, "https://www.example.com")</code></pre>
+                </div>
+
+                <div class="function-card">
+                    <h4>_WebView2_NavigateToString($aWebView, $sHtml)</h4>
+                    <p class="description">Lädt HTML-Inhalt direkt (ohne Server).</p>
+
+                    <pre><code>Local $sHTML = "&lt;html&gt;&lt;body&gt;&lt;h1&gt;Hallo Welt!&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;"
+_WebView2_NavigateToString($aWebView, $sHTML)</code></pre>
+                </div>
+
+                <div class="function-card">
+                    <h4>_WebView2_GoBack($aWebView) / _WebView2_GoForward($aWebView)</h4>
+                    <p class="description">Navigiert in der History zurück/vorwärts.</p>
+                </div>
+
+                <div class="function-card">
+                    <h4>_WebView2_Reload($aWebView) / _WebView2_Stop($aWebView)</h4>
+                    <p class="description">Lädt die Seite neu oder stoppt das Laden.</p>
+                </div>
+            </section>
+
+            <!-- Scripting -->
+            <section id="scripting">
+                <h2>Scripting</h2>
+
+                <div class="function-card">
+                    <h4>_WebView2_ExecuteScript($aWebView, $sScript, $iTimeout = 5000)</h4>
+                    <p class="description">Führt JavaScript synchron aus und gibt das Ergebnis zurück.</p>
+
+                    <div class="info-box warning">
+                        <h5>Achtung</h5>
+                        <p>Diese Funktion blockiert bis das Ergebnis vorliegt. Für UI-Updates
+                        verwenden Sie _WebView2_ExecuteScriptAsync().</p>
+                    </div>
+
+                    <pre><code>; Wert aus JavaScript abrufen
+Local $sResult = _WebView2_ExecuteScript($aWebView, "document.title")
+ConsoleWrite("Titel: " & $sResult & @CRLF)</code></pre>
+                </div>
+
+                <div class="function-card">
+                    <h4>_WebView2_ExecuteScriptAsync($aWebView, $sScript)</h4>
+                    <p class="description">Führt JavaScript asynchron aus (non-blocking).</p>
+
+                    <pre><code>; UI aktualisieren ohne zu blockieren
+_WebView2_ExecuteScriptAsync($aWebView, "updateStatus('Verarbeitung läuft...')")</code></pre>
+                </div>
+
+                <div class="function-card">
+                    <h4>_WebView2_PostMessage($aWebView, $sMessage)</h4>
+                    <p class="description">Sendet eine Nachricht an das JavaScript (empfangbar via chrome.webview.addEventListener).</p>
+                </div>
+            </section>
+
+            <!-- Callbacks -->
+            <section id="callbacks">
+                <h2>Callbacks</h2>
+
+                <div class="function-card">
+                    <h4>_WebView2_SetMessageCallback($aWebView, $sCallbackFunc)</h4>
+                    <p class="description">Registriert eine AutoIt-Funktion für WebMessageReceived-Events.</p>
+
+                    <pre><code>_WebView2_SetMessageCallback($aWebView, "_OnWebMessage")
+
+Func _OnWebMessage($sMessage)
+    ; Nachricht von JavaScript verarbeiten
+    ConsoleWrite("Empfangen: " & $sMessage & @CRLF)
+EndFunc</code></pre>
+                </div>
+
+                <div class="function-card">
+                    <h4>_WV2CB_GetLastWebMessage()</h4>
+                    <p class="description">Ruft die letzte empfangene WebMessage ab (für Polling im Event-Loop).</p>
+                </div>
+
+                <div class="function-card">
+                    <h4>_WV2CB_Cleanup()</h4>
+                    <p class="description">Gibt alle Callback-Ressourcen frei. Muss vor Programmende aufgerufen werden.</p>
+                </div>
+            </section>
+
+            <!-- Example Basic -->
+            <section id="example-basic">
+                <h2>Einfaches Beispiel</h2>
+                <p>Browser mit grundlegender Navigation:</p>
+
+                <pre><code>#include &lt;GUIConstantsEx.au3&gt;
+#include &lt;WindowsConstants.au3&gt;
+#include "Include\WebView2_Native.au3"
+
+DllCall("ole32.dll", "long", "OleInitialize", "ptr", 0)
+
+$hGUI = GUICreate("Mini Browser", 1024, 768, -1, -1, _
+    BitOR($WS_OVERLAPPEDWINDOW, $WS_CLIPCHILDREN))
+
+; Toolbar
+$idBack = GUICtrlCreateButton("◀", 10, 10, 30, 30)
+$idForward = GUICtrlCreateButton("▶", 45, 10, 30, 30)
+$idReload = GUICtrlCreateButton("⟳", 80, 10, 30, 30)
+$idUrl = GUICtrlCreateInput("https://www.autoitscript.com", 120, 12, 780, 26)
+$idGo = GUICtrlCreateButton("Go", 910, 10, 50, 30)
+
+GUISetState(@SW_SHOW)
+For $i = 1 To 20 : GUIGetMsg() : Sleep(10) : Next
+
+$aWebView = _WebView2_Create($hGUI, 0, 50, 1024, 718)
+_WebView2_Navigate($aWebView, GUICtrlRead($idUrl))
+
+While True
+    $msg = GUIGetMsg()
+    Switch $msg
+        Case $GUI_EVENT_CLOSE
+            ExitLoop
+        Case $idBack
+            _WebView2_GoBack($aWebView)
+        Case $idForward
+            _WebView2_GoForward($aWebView)
+        Case $idReload
+            _WebView2_Reload($aWebView)
+        Case $idGo
+            _WebView2_Navigate($aWebView, GUICtrlRead($idUrl))
+    EndSwitch
+    Sleep(10)
+WEnd
+
+_WebView2_Close($aWebView)
+_WV2CB_Cleanup()
+GUIDelete($hGUI)
+DllCall("ole32.dll", "none", "OleUninitialize")</code></pre>
+            </section>
+
+            <!-- Example Hybrid -->
+            <section id="example-hybrid">
+                <h2>Hybrid-GUI</h2>
+                <p>Die empfohlene Architektur: Native AutoIt-Buttons + WebView2 für Content-Anzeige.</p>
+
+                <div class="info-box tip">
+                    <h5>Warum Hybrid?</h5>
+                    <p>Native Buttons garantieren, dass FileDialogs und andere System-Dialoge
+                    zuverlässig funktionieren. WebView2 übernimmt die moderne Darstellung.</p>
+                </div>
+
+                <pre><code>; Toolbar mit nativen Buttons
+$g_idBtnOpen = GUICtrlCreateButton("Open", 10, 10, 80, 30)
+$g_idBtnSave = GUICtrlCreateButton("Save", 100, 10, 80, 30)
+$g_idBtnRun = GUICtrlCreateButton("Run", 200, 10, 80, 30)
+
+; WebView2 für Content (unter Toolbar)
+$g_aWebView = _WebView2_Create($hGUI, 0, 50, 800, 550)
+_WebView2_NavigateToString($g_aWebView, $sHTML)
+
+; Event-Loop
+While True
+    $msg = GUIGetMsg()
+    Switch $msg
+        Case $g_idBtnOpen
+            ; Nativer Button → FileOpenDialog funktioniert!
+            Local $sFile = FileOpenDialog("Open", @ScriptDir, "All (*.*)")
+            If Not @error Then
+                _WebView2_ExecuteScriptAsync($aWebView, _
+                    "fileOpened('" & $sFile & "')")
+            EndIf
+    EndSwitch
+WEnd</code></pre>
+            </section>
+
+            <!-- Example App -->
+            <section id="example-app">
+                <h2>SQLite Manager</h2>
+                <p>
+                    Der SQLite Manager ist eine vollständige Demo-Anwendung, die alle Konzepte
+                    der WebView2 UDF demonstriert:
+                </p>
+
+                <ul class="requirements-list">
+                    <li>Hybrid-Architektur (Native Toolbar + WebView2 Content)</li>
+                    <li>Bidirektionale Kommunikation (AutoIt ↔ JavaScript)</li>
+                    <li>Moderne UI mit CSS Grid und Flexbox</li>
+                    <li>SQLite-Datenbankoperationen</li>
+                    <li>CSV-Export-Funktionalität</li>
+                    <li>Dynamische Schema-Anzeige</li>
+                </ul>
+
+                <p>Siehe <code class="inline-code">SQLiteManager/SQLiteManager.au3</code> für den vollständigen Quellcode.</p>
+
+                <div class="info-box note">
+                    <h5>Benötigte Dateien</h5>
+                    <p>SQLiteManager benötigt zusätzlich: sqlite3_x64.dll / sqlite3_x86.dll</p>
+                </div>
+            </section>
+
+            <footer style="margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 14px;">
+                <p>WebView2 Native UDF v2.0 | © 2024 Ralle1976</p>
+                <p>Dokumentation erstellt: Dezember 2024</p>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        // Smooth scroll for navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                const target = document.querySelector(link.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+                // Update active state
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+            });
+        });
+
+        // Highlight active section on scroll
+        const sections = document.querySelectorAll('section[id]');
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+LIBRARY WebView2Helper
+EXPORTS
+    WV2Helper_Initialize
+    WV2Helper_Cleanup
+    WV2Helper_CreateEnvironmentHandler
+    WV2Helper_CreateControllerHandler
+    WV2Helper_CreateNavigationHandler
+    WV2Helper_CreateWebMessageHandler
+    WV2Helper_CreateScriptHandler
+    WV2Helper_GetEnvironment
+    WV2Helper_GetController
+    WV2Helper_GetWebView2
+    WV2Helper_GetLastMessage
+    WV2Helper_GetScriptResult

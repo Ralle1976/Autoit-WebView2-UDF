@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebView2 UDF - Benutzerhandbuch</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h1>WebView2 UDF</h1>
+            <span class="version">v1.0.0</span>
+        </div>
+        <ul class="nav-menu">
+            <li><a href="#start" class="active">Schnellstart</a></li>
+            <li><a href="#installation">Installation</a></li>
+            <li><a href="#grundlagen">Grundlagen</a></li>
+            <li class="nav-section">API-Referenz</li>
+            <li><a href="#webview2-ordo">WebView2_OrdoControl</a></li>
+            <li><a href="#webview2-runtime">WebView2_Runtime</a></li>
+            <li><a href="#webview2-setup">WebView2_Setup</a></li>
+            <li class="nav-section">Beispiele</li>
+            <li><a href="#beispiel-browser">Simple Browser</a></li>
+            <li><a href="#beispiel-dashboard">Dashboard</a></li>
+            <li><a href="#beispiel-bridge">JS Bridge</a></li>
+            <li class="nav-section">Demo-Projekt</li>
+            <li><a href="#sqlitemanager">SQLite Manager</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <p>Autor: Ralle1976</p>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="content">
+        <!-- Schnellstart -->
+        <section id="start" class="section">
+            <h1>WebView2 UDF für AutoIt</h1>
+            <p class="lead">
+                Eine vollständige AutoIt UDF für Microsoft Edge WebView2,
+                die moderne Webinhalte in AutoIt-Anwendungen ermöglicht.
+            </p>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3>Modernes Web</h3>
+                    <p>Vollständige HTML5, CSS3 und ES6+ Unterstützung</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Schnell</h3>
+                    <p>GPU-beschleunigtes Rendering mit Chromium-Engine</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔗</div>
+                    <h3>Bridge</h3>
+                    <p>Bidirektionale AutoIt ↔ JavaScript Kommunikation</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛠️</div>
+                    <h3>DevTools</h3>
+                    <p>Chrome DevTools für Debugging (F12)</p>
+                </div>
+            </div>
+
+            <h2>Schnellstart in 5 Minuten</h2>
+            <div class="code-block">
+                <pre><code class="language-autoit">#include "Include\WebView2_Setup.au3"
+#include "Include\WebView2_OrdoControl.au3"
+
+; Setup prüfen und durchführen
+If Not _WebView2Setup_CheckAll() Then _WebView2Setup_RunCompleteSetup()
+
+; GUI erstellen
+$hGUI = GUICreate("Mein WebView2", 1024, 768)
+GUISetState(@SW_SHOW)
+
+; WebView2-Control erstellen
+$oWebView = _WebView2Ordo_Create($hGUI, 0, 0, 1024, 768)
+
+; URL laden
+_WebView2Ordo_Navigate($oWebView, "https://www.google.de")
+
+; Event-Loop
+While 1
+    Switch GUIGetMsg()
+        Case -3 ; $GUI_EVENT_CLOSE
+            ExitLoop
+    EndSwitch
+WEnd</code></pre>
+            </div>
+        </section>
+
+        <!-- Installation -->
+        <section id="installation" class="section">
+            <h1>Installation</h1>
+
+            <h2>Voraussetzungen</h2>
+            <ul class="checklist">
+                <li><span class="check">✓</span> Windows 7 SP1 oder neuer</li>
+                <li><span class="check">✓</span> AutoIt 3.3.16.1 oder neuer</li>
+                <li><span class="check">✓</span> Internetverbindung (für Erstinstallation)</li>
+                <li><span class="check">✓</span> Administrator-Rechte (für Installation)</li>
+            </ul>
+
+            <h2>Automatische Installation</h2>
+            <p>Der einfachste Weg ist die Verwendung des Setup-Wizards:</p>
+            <div class="code-block">
+                <pre><code class="language-autoit">#include "Include\WebView2_Setup.au3"
+
+; Zeigt interaktiven Setup-Wizard
+_WebView2Setup_ShowSetupWizard()</code></pre>
+            </div>
+
+            <h2>Manuelle Installation</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>WebView2 Runtime installieren</h4>
+                        <p>Download von <a href="https://developer.microsoft.com/en-us/microsoft-edge/webview2/" target="_blank">Microsoft</a></p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>OrdoWebView2.ocx installieren</h4>
+                        <p>Download von <a href="https://freeware.ordoconcept.net/OrdoWebview2.php" target="_blank">OrdoConcept</a></p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>UDF-Dateien kopieren</h4>
+                        <p>Kopieren Sie den <code>Include</code>-Ordner in Ihr Projekt</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Grundlagen -->
+        <section id="grundlagen" class="section">
+            <h1>Grundlagen</h1>
+
+            <h2>Architektur</h2>
+            <div class="architecture">
+                <div class="arch-layer">
+                    <div class="arch-box">Ihre AutoIt-Anwendung</div>
+                </div>
+                <div class="arch-arrow">↓</div>
+                <div class="arch-layer">
+                    <div class="arch-box">WebView2_OrdoControl.au3</div>
+                </div>
+                <div class="arch-arrow">↓</div>
+                <div class="arch-layer">
+                    <div class="arch-box">OrdoWebView2.ocx (ActiveX)</div>
+                </div>
+                <div class="arch-arrow">↓</div>
+                <div class="arch-layer">
+                    <div class="arch-box">WebView2 Runtime (Chromium)</div>
+                </div>
+            </div>
+
+            <h2>Include-Dateien</h2>
+            <table class="api-table">
+                <thead>
+                    <tr>
+                        <th>Datei</th>
+                        <th>Beschreibung</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>WebView2_OrdoControl.au3</code></td>
+                        <td>Hauptfunktionen für WebView2 (empfohlen)</td>
+                    </tr>
+                    <tr>
+                        <td><code>WebView2_Runtime.au3</code></td>
+                        <td>Runtime-Erkennung und Installation</td>
+                    </tr>
+                    <tr>
+                        <td><code>WebView2_Setup.au3</code></td>
+                        <td>Setup-Wizard und automatische Installation</td>
+                    </tr>
+                    <tr>
+                        <td><code>WebView2.au3</code></td>
+                        <td>Legacy IE-Version (deprecated)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- API: WebView2_OrdoControl -->
+        <section id="webview2-ordo" class="section">
+            <h1>WebView2_OrdoControl.au3</h1>
+            <p>Die Hauptbibliothek für WebView2-Funktionalität mit OrdoWebView2.ocx.</p>
+
+            <h2>Funktionen</h2>
+
+            <div class="function-doc">
+                <h3>_WebView2Ordo_Create</h3>
+                <p>Erstellt ein neues WebView2-Control in einem GUI-Fenster.</p>
+                <div class="code-block">
+                    <pre><code class="language-autoit">$oWebView = _WebView2Ordo_Create($hGUI, $iX, $iY, $iWidth, $iHeight [, $sUserDataFolder])</code></pre>
+                </div>
+                <table class="param-table">
+                    <tr><td><code>$hGUI</code></td><td>Handle des Eltern-GUI-Fensters</td></tr>
+                    <tr><td><code>$iX, $iY</code></td><td>Position des Controls</td></tr>
+                    <tr><td><code>$iWidth, $iHeight</code></td><td>Größe des Controls</td></tr>
+                    <tr><td><code>$sUserDataFolder</code></td><td>[Optional] Ordner für Benutzerdaten</td></tr>
+                    <tr><td><strong>Rückgabe</strong></td><td>WebView2-Objekt oder 0 bei Fehler</td></tr>
+                </table>
+            </div>
+
+            <div class="function-doc">
+                <h3>_WebView2Ordo_Navigate</h3>
+                <p>Navigiert zu einer URL.</p>
+                <div class="code-block">
+                    <pre><code class="language-autoit">_WebView2Ordo_Navigate($oWebView, $sURL)</code></pre>
+                </div>
+            </div>
+
+            <div class="function-doc">
+                <h3>_WebView2Ordo_NavigateToString</h3>
+                <p>Lädt HTML-Code direkt als String.</p>
+                <div class="code-block">
+                    <pre><code class="language-autoit">_WebView2Ordo_NavigateToString($oWebView, $sHTML)</code></pre>
+                </div>
+            </div>
+
+            <div class="function-doc">
+                <h3>_WebView2Ordo_ExecuteScript</h3>
+                <p>Führt JavaScript-Code aus und gibt das Ergebnis zurück.</p>
+                <div class="code-block">
+                    <pre><code class="language-autoit">$sResult = _WebView2Ordo_ExecuteScript($oWebView, "document.title")</code></pre>
+                </div>
+            </div>
+
+            <div class="function-doc">
+                <h3>_WebView2Ordo_ExecuteScriptAsync</h3>
+                <p>Führt JavaScript-Code asynchron aus (ohne Rückgabewert).</p>
+                <div class="code-block">
+                    <pre><code class="language-autoit">_WebView2Ordo_ExecuteScriptAsync($oWebView, "console.log('Hello')")</code></pre>
+                </div>
+            </div>
+
+            <h2>Weitere Funktionen</h2>
+            <table class="api-table">
+                <thead>
+                    <tr><th>Funktion</th><th>Beschreibung</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>_WebView2Ordo_GetURL()</code></td><td>Aktuelle URL abrufen</td></tr>
+                    <tr><td><code>_WebView2Ordo_GetTitle()</code></td><td>Seitentitel abrufen</td></tr>
+                    <tr><td><code>_WebView2Ordo_GoBack()</code></td><td>Zurück navigieren</td></tr>
+                    <tr><td><code>_WebView2Ordo_GoForward()</code></td><td>Vorwärts navigieren</td></tr>
+                    <tr><td><code>_WebView2Ordo_Reload()</code></td><td>Seite neu laden</td></tr>
+                    <tr><td><code>_WebView2Ordo_Stop()</code></td><td>Laden stoppen</td></tr>
+                    <tr><td><code>_WebView2Ordo_SetZoomFactor()</code></td><td>Zoom setzen (1.0 = 100%)</td></tr>
+                    <tr><td><code>_WebView2Ordo_OpenDevTools()</code></td><td>Chrome DevTools öffnen</td></tr>
+                    <tr><td><code>_WebView2Ordo_ClearCache()</code></td><td>Cache und Cookies löschen</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- API: WebView2_Runtime -->
+        <section id="webview2-runtime" class="section">
+            <h1>WebView2_Runtime.au3</h1>
+            <p>Funktionen zur Erkennung und Installation der WebView2 Runtime.</p>
+
+            <table class="api-table">
+                <thead>
+                    <tr><th>Funktion</th><th>Beschreibung</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>_WebView2Runtime_IsInstalled()</code></td><td>Prüft ob Runtime installiert ist</td></tr>
+                    <tr><td><code>_WebView2Runtime_GetVersion()</code></td><td>Version der Runtime abrufen</td></tr>
+                    <tr><td><code>_WebView2Runtime_CheckAndPromptInstall()</code></td><td>Prüfen mit Benutzer-Prompt</td></tr>
+                    <tr><td><code>_WebView2Runtime_DownloadAndInstall()</code></td><td>Automatisch herunterladen und installieren</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- API: WebView2_Setup -->
+        <section id="webview2-setup" class="section">
+            <h1>WebView2_Setup.au3</h1>
+            <p>Setup-Wizard für vollständige automatische Installation.</p>
+
+            <table class="api-table">
+                <thead>
+                    <tr><th>Funktion</th><th>Beschreibung</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>_WebView2Setup_CheckAll()</code></td><td>Alle Komponenten prüfen</td></tr>
+                    <tr><td><code>_WebView2Setup_RunCompleteSetup()</code></td><td>Vollständiges Setup durchführen</td></tr>
+                    <tr><td><code>_WebView2Setup_ShowSetupWizard()</code></td><td>Interaktiven Wizard anzeigen</td></tr>
+                    <tr><td><code>_WebView2Setup_IsOrdoInstalled()</code></td><td>OrdoWebView2.ocx prüfen</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Beispiele -->
+        <section id="beispiel-browser" class="section">
+            <h1>Beispiel: Simple Browser</h1>
+            <div class="code-block">
+                <pre><code class="language-autoit">#include &lt;GUIConstantsEx.au3&gt;
+#include "Include\WebView2_Setup.au3"
+#include "Include\WebView2_OrdoControl.au3"
+
+; Setup
+If Not _WebView2Setup_CheckAll() Then _WebView2Setup_RunCompleteSetup()
+
+; GUI
+$hGUI = GUICreate("Simple Browser", 1024, 768)
+$idURL = GUICtrlCreateInput("https://www.google.de", 10, 10, 700, 25)
+$idGo = GUICtrlCreateButton("Go", 720, 10, 60, 25)
+$idBack = GUICtrlCreateButton("←", 790, 10, 30, 25)
+$idForward = GUICtrlCreateButton("→", 825, 10, 30, 25)
+GUISetState()
+
+; WebView2
+$oWebView = _WebView2Ordo_Create($hGUI, 10, 45, 1004, 713)
+_WebView2Ordo_Navigate($oWebView, GUICtrlRead($idURL))
+
+; Event-Loop
+While 1
+    Switch GUIGetMsg()
+        Case $GUI_EVENT_CLOSE
+            ExitLoop
+        Case $idGo
+            _WebView2Ordo_Navigate($oWebView, GUICtrlRead($idURL))
+        Case $idBack
+            _WebView2Ordo_GoBack($oWebView)
+        Case $idForward
+            _WebView2Ordo_GoForward($oWebView)
+    EndSwitch
+WEnd</code></pre>
+            </div>
+        </section>
+
+        <!-- SQLite Manager -->
+        <section id="sqlitemanager" class="section">
+            <h1>Demo-Projekt: SQLite Manager</h1>
+            <p>
+                Das SQLite Management Studio ist eine vollständige Anwendung,
+                die die Möglichkeiten der WebView2-UDF demonstriert.
+            </p>
+
+            <h2>Features</h2>
+            <ul class="feature-list">
+                <li>Modernes Glassmorphism-Design mit Dark/Light Theme</li>
+                <li>SQL-Editor mit Syntax-Highlighting</li>
+                <li>Datentabelle mit Sortierung und Filterung</li>
+                <li>Datenbank-Explorer mit Schema-Ansicht</li>
+                <li>Export nach CSV</li>
+                <li>AutoIt ↔ JavaScript Bridge-Kommunikation</li>
+            </ul>
+
+            <h2>Starten</h2>
+            <div class="code-block">
+                <pre><code class="language-batch">cd SQLiteManager
+AutoIt3.exe SQLiteManager.au3</code></pre>
+            </div>
+
+            <h2>Tastenkürzel</h2>
+            <table class="api-table">
+                <thead>
+                    <tr><th>Taste</th><th>Aktion</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><kbd>F5</kbd></td><td>Query ausführen</td></tr>
+                    <tr><td><kbd>Ctrl+O</kbd></td><td>Datenbank öffnen</td></tr>
+                    <tr><td><kbd>Ctrl+N</kbd></td><td>Neue Datenbank</td></tr>
+                    <tr><td><kbd>Ctrl+S</kbd></td><td>Export CSV</td></tr>
+                    <tr><td><kbd>Ctrl+T</kbd></td><td>Neuer Tab</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Footer -->
+        <footer class="main-footer">
+            <p>WebView2 UDF für AutoIt - Entwickelt von Ralle1976</p>
+            <p>Basierend auf OrdoWebView2 (ordoconcept.net) und Microsoft Edge WebView2</p>
+        </footer>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/autoit.min.js"></script>
+    <script>
+        hljs.highlightAll();
+
+        // Smooth scroll for navigation
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                target.scrollIntoView({ behavior: 'smooth' });
+
+                // Update active state
+                document.querySelectorAll('.nav-menu a').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Scroll spy
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('.section');
+            let current = '';
+
+            sections.forEach(section => {
+                const top = section.offsetTop - 100;
+                if (window.scrollY >= top) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            document.querySelectorAll('.nav-menu a').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

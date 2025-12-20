@@ -1,0 +1,32 @@
+# Backup und temporaere Dateien
+_backup/
+*.tmp
+*.log
+*.bak
+
+# Credentials
+.env
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# AutoIt
+*.exe
+
+# Build Artefakte
+src/build32/
+src/build64/
+*.obj
+*.exp
+*.lib
+*.pdb
+
+# IDE
+.vscode/
+*.au3.bak
+
+# SQLite Datenbanken (Testdaten)
+*.db
+*.sqlite
+*.sqlite3

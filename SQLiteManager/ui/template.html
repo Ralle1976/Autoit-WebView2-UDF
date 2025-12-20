@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>{{CSS}}</style>
+</head>
+<body>
+    <div class="layout" id="layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sb-header">
+                <span class="sb-title">SCHEMA</span>
+                <button class="sb-refresh" onclick="requestRefresh()" title="Refresh">&#8635;</button>
+            </div>
+            <div class="sb-search">
+                <input type="text" id="schemaSearch" placeholder="Suchen..." oninput="filterSchema()">
+            </div>
+            <div class="sb-content" id="schema">
+                <div class="empty">Keine Datenbank</div>
+            </div>
+        </aside>
+
+        <div class="resizer" id="resizerLeft" onmousedown="startResize(event,'left')"></div>
+
+        <main class="main">
+            <div class="editor-wrap">
+                <div class="editor-header">
+                    <span>SQL Editor</span>
+                    <div class="editor-actions">
+                        <button onclick="formatSQL()" title="Format SQL">Format</button>
+                        <button onclick="clearEditor()" title="Clear">Clear</button>
+                    </div>
+                </div>
+                <div class="editor-container">
+                    <div class="line-numbers" id="lineNumbers">1</div>
+                    <div class="editor-area">
+                        <pre id="highlight" class="highlight"></pre>
+                        <textarea id="sql" spellcheck="false" oninput="onSQLInput()" onkeydown="onKeyDown(event)" onscroll="syncScroll()">SELECT * FROM sqlite_master;</textarea>
+                    </div>
+                    <div class="autocomplete" id="autocomplete"></div>
+                </div>
+            </div>
+            <div class="h-resizer" id="resizerH" onmousedown="startResizeH(event)"></div>
+            <div class="output" id="output">
+                <div class="empty">Datenbank oeffnen und Query ausfuehren (F5)</div>
+            </div>
+        </main>
+
+        <div class="resizer" id="resizerRight" onmousedown="startResize(event,'right')" style="display:none"></div>
+
+        <aside class="info-panel" id="infoPanel">
+            <div class="ip-header">
+                <span id="ipTitle">Tabellen-Info</span>
+                <button onclick="closeInfoPanel()">&#10005;</button>
+            </div>
+            <div class="ip-content" id="ipContent"></div>
+        </aside>
+    </div>
+
+    <!-- Query Wizard Modal -->
+    <div class="modal" id="wizardModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Query Wizard</span>
+                <button onclick="closeWizard()">&#10005;</button>
+            </div>
+            <div class="modal-body" id="wizardBody"></div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="applyWizard()">Query uebernehmen</button>
+                <button onclick="closeWizard()">Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div class="modal" id="historyModal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <span>Query Historie</span>
+                <button onclick="closeHistory()">&#10005;</button>
+            </div>
+            <div class="modal-body" id="historyBody"></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>{{JS}}</script>
+</body>
+</html>
