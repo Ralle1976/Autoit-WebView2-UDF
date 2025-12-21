@@ -786,5 +786,180 @@ function requestRefresh() {
     pendingAction = 'refresh';
 }
 
+// ERD Diagram Functions
+var erdZoom = 1;
+
+function showERD() {
+    if (!schema || schema.length === 0) {
+        document.getElementById('erdContainer').innerHTML =
+            '<div class="erd-empty">' +
+            '<div class="erd-empty-icon">&#9707;</div>' +
+            '<div>Keine Datenbank geoeffnet</div>' +
+            '<div style="font-size:13px;margin-top:8px">Oeffnen Sie eine Datenbank um das Schema-Diagramm anzuzeigen</div>' +
+            '</div>';
+        document.getElementById('erdModal').classList.add('open');
+        return;
+    }
+
+    var mermaidCode = generateMermaidERD();
+    renderERD(mermaidCode);
+    document.getElementById('erdModal').classList.add('open');
+}
+
+function closeERD() {
+    document.getElementById('erdModal').classList.remove('open');
+}
+
+function generateMermaidERD() {
+    var lines = ['erDiagram'];
+    var relationships = [];
+    var tables = schema.filter(function(t) { return t.t === 'table'; });
+
+    // Collect all relationships first
+    tables.forEach(function(table) {
+        if (table.fk && table.fk.length > 0) {
+            table.fk.forEach(function(fk) {
+                var parts = fk.to.split('.');
+                if (parts.length === 2) {
+                    var targetTable = parts[0];
+                    var targetCol = parts[1];
+                    // Format: table1 ||--o{ table2 : "has"
+                    relationships.push('    ' + targetTable + ' ||--o{ ' + table.n + ' : "' + fk.from + '"');
+                }
+            });
+        }
+    });
+
+    // Add relationships
+    relationships.forEach(function(rel) {
+        lines.push(rel);
+    });
+
+    // Add table definitions with columns
+    tables.forEach(function(table) {
+        lines.push('    ' + table.n + ' {');
+        table.cols.forEach(function(col) {
+            var colType = sanitizeType(col.t || 'TEXT');
+            var colName = sanitizeName(col.n);
+            var markers = [];
+            if (col.pk) markers.push('PK');
+            if (col.nn) markers.push('NOT NULL');
+
+            // Check if this column is a FK
+            var isFK = table.fk && table.fk.some(function(fk) { return fk.from === col.n; });
+            if (isFK) markers.push('FK');
+
+            var markerStr = markers.length > 0 ? ' "' + markers.join(', ') + '"' : '';
+            lines.push('        ' + colType + ' ' + colName + markerStr);
+        });
+        lines.push('    }');
+    });
+
+    return lines.join('\n');
+}
+
+function sanitizeType(type) {
+    // Remove parentheses and special chars for Mermaid compatibility
+    type = type.toUpperCase().replace(/\([^)]*\)/g, '').trim();
+    // Common type mappings
+    var typeMap = {
+        'INTEGER': 'int',
+        'BIGINT': 'bigint',
+        'SMALLINT': 'smallint',
+        'TINYINT': 'tinyint',
+        'REAL': 'float',
+        'FLOAT': 'float',
+        'DOUBLE': 'double',
+        'NUMERIC': 'decimal',
+        'DECIMAL': 'decimal',
+        'TEXT': 'string',
+        'VARCHAR': 'string',
+        'CHAR': 'string',
+        'NVARCHAR': 'string',
+        'BLOB': 'blob',
+        'BOOLEAN': 'bool',
+        'BOOL': 'bool',
+        'DATE': 'date',
+        'TIME': 'time',
+        'DATETIME': 'datetime',
+        'TIMESTAMP': 'timestamp'
+    };
+    return typeMap[type] || 'string';
+}
+
+function sanitizeName(name) {
+    // Replace special characters that might break Mermaid syntax
+    return name.replace(/[^a-zA-Z0-9_]/g, '_');
+}
+
+function renderERD(mermaidCode) {
+    var container = document.getElementById('erdContainer');
+
+    // Initialize Mermaid with dark theme
+    if (typeof mermaid !== 'undefined') {
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'dark',
+            themeVariables: {
+                primaryColor: '#21262d',
+                primaryTextColor: '#c9d1d9',
+                primaryBorderColor: '#30363d',
+                lineColor: '#58a6ff',
+                secondaryColor: '#161b22',
+                tertiaryColor: '#0d1117'
+            },
+            er: {
+                diagramPadding: 20,
+                layoutDirection: 'TB',
+                minEntityWidth: 100,
+                minEntityHeight: 75,
+                entityPadding: 15,
+                useMaxWidth: false
+            }
+        });
+
+        // Generate unique ID
+        var id = 'erd-' + Date.now();
+
+        mermaid.render(id, mermaidCode).then(function(result) {
+            container.innerHTML = '<div class="erd-diagram" style="transform: scale(' + erdZoom + '); transform-origin: top center;">' + result.svg + '</div>';
+        }).catch(function(error) {
+            console.error('Mermaid ERD Error:', error);
+            // Fallback: show text representation
+            container.innerHTML = '<div class="erd-empty">' +
+                '<div style="color:var(--red);margin-bottom:16px">Diagramm konnte nicht gerendert werden</div>' +
+                '<pre style="text-align:left;background:var(--bg2);padding:16px;border-radius:8px;max-width:80%;overflow:auto;font-size:12px">' +
+                esc(mermaidCode) + '</pre></div>';
+        });
+    } else {
+        container.innerHTML = '<div class="erd-empty">' +
+            '<div class="erd-empty-icon">&#9888;</div>' +
+            '<div>Mermaid.js konnte nicht geladen werden</div>' +
+            '</div>';
+    }
+}
+
+function zoomERD(factor) {
+    erdZoom *= factor;
+    erdZoom = Math.max(0.3, Math.min(3, erdZoom));
+    var diagram = document.querySelector('.erd-diagram');
+    if (diagram) {
+        diagram.style.transform = 'scale(' + erdZoom + ')';
+    }
+}
+
+function resetERD() {
+    erdZoom = 1;
+    var diagram = document.querySelector('.erd-diagram');
+    if (diagram) {
+        diagram.style.transform = 'scale(1)';
+    }
+}
+
 // Initialize
 onSQLInput();
+
+// Initialize Mermaid when loaded
+if (typeof mermaid !== 'undefined') {
+    mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+}

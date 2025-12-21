@@ -9,7 +9,10 @@
         <aside class="sidebar" id="sidebar">
             <div class="sb-header">
                 <span class="sb-title">SCHEMA</span>
-                <button class="sb-refresh" onclick="requestRefresh()" title="Refresh">&#8635;</button>
+                <div class="sb-actions">
+                    <button class="sb-btn" onclick="showERD()" title="Schema-Diagramm (ERD)">&#9707;</button>
+                    <button class="sb-btn" onclick="requestRefresh()" title="Refresh">&#8635;</button>
+                </div>
             </div>
             <div class="sb-search">
                 <input type="text" id="schemaSearch" placeholder="Suchen..." oninput="filterSchema()">
@@ -82,9 +85,28 @@
         </div>
     </div>
 
+    <!-- ERD Modal -->
+    <div class="modal" id="erdModal">
+        <div class="modal-content modal-xl">
+            <div class="modal-header">
+                <span>Datenbank-Schema (ERD)</span>
+                <div class="erd-controls">
+                    <button onclick="zoomERD(1.2)" title="Zoom In">&#43;</button>
+                    <button onclick="zoomERD(0.8)" title="Zoom Out">&#8722;</button>
+                    <button onclick="resetERD()" title="Reset">&#8634;</button>
+                </div>
+                <button onclick="closeERD()">&#10005;</button>
+            </div>
+            <div class="modal-body erd-body">
+                <div class="erd-container" id="erdContainer"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast -->
     <div class="toast" id="toast"></div>
 
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <script>{{JS}}</script>
 </body>
 </html>

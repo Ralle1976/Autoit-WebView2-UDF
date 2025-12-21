@@ -73,16 +73,20 @@ body {
     letter-spacing: 1px;
     color: var(--text2);
 }
-.sb-refresh {
+.sb-actions {
+    display: flex;
+    gap: 4px;
+}
+.sb-btn {
     background: none;
     border: none;
     color: var(--text2);
     font-size: 16px;
     cursor: pointer;
-    padding: 4px;
+    padding: 4px 6px;
     border-radius: 4px;
 }
-.sb-refresh:hover { background: var(--bg3); color: var(--text); }
+.sb-btn:hover { background: var(--bg3); color: var(--text); }
 .sb-search { padding: 8px 12px; }
 .sb-search input {
     width: 100%;
@@ -646,4 +650,91 @@ button:hover { border-color: var(--accent); }
     white-space: pre-wrap;
     max-height: 60px;
     overflow: hidden;
+}
+
+/* ERD Diagram Styles */
+.modal-content.modal-xl {
+    width: 90vw;
+    max-width: 1400px;
+    height: 85vh;
+}
+.erd-controls {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+    margin-right: 20px;
+}
+.erd-controls button {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.erd-body {
+    height: calc(100% - 60px);
+    padding: 0 !important;
+    overflow: hidden;
+}
+.erd-container {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background: var(--bg);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 20px;
+}
+.erd-container svg {
+    max-width: none !important;
+    height: auto !important;
+}
+.erd-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text2);
+    font-size: 16px;
+}
+.erd-empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.3;
+}
+
+/* Mermaid Theme Override for Dark Mode */
+.erd-container .entityBox {
+    fill: var(--bg2) !important;
+    stroke: var(--border) !important;
+}
+.erd-container .entityLabel {
+    fill: var(--text) !important;
+}
+.erd-container .relationshipLabelBox {
+    fill: var(--bg) !important;
+}
+.erd-container .relationshipLabel {
+    fill: var(--text2) !important;
+}
+.erd-container text {
+    fill: var(--text) !important;
+    font-family: 'Segoe UI', sans-serif !important;
+}
+.erd-container .er.attributeBoxOdd,
+.erd-container .er.attributeBoxEven {
+    fill: var(--bg3) !important;
+}
+.erd-container line {
+    stroke: var(--accent) !important;
+}
+.erd-container path {
+    stroke: var(--accent) !important;
+}
+.erd-container marker path {
+    fill: var(--accent) !important;
 }
