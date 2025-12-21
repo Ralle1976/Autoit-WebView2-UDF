@@ -18,33 +18,24 @@ SQLite Manager Pro is a full-featured database management application built with
 ## Screenshots
 
 ### Main Interface
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  SQLite Manager Pro                                             │
-├──────────────┬──────────────────────────────────────────────────┤
-│   SCHEMA     │  SQL Editor                        [Format][Clear]│
-│   [ERD][↻]   │  SELECT * FROM users WHERE active = 1;          │
-│              │  ─────────────────────────────────────────────── │
-│ ▶ users      │  │ id │ name     │ email            │ active   │ │
-│   • id       │  ├────┼──────────┼──────────────────┼──────────┤ │
-│   • name     │  │ 1  │ Max      │ max@example.com  │ 1        │ │
-│   • email    │  │ 3  │ Lisa     │ lisa@example.com │ 1        │ │
-│ ▶ orders     │  └────┴──────────┴──────────────────┴──────────┘ │
-│ ▶ products   │  2 von 2 Zeilen (5 ms)                           │
-└──────────────┴──────────────────────────────────────────────────┘
-```
+![Main Interface](https://raw.githubusercontent.com/Ralle1976/Autoit-WebView2-UDF/main/docs/wiki/Bilder/MainInterface.jpg)
 
-### ERD Diagram
-```
-┌─────────────────┐         ┌─────────────────┐
-│     users       │         │     orders      │
-├─────────────────┤         ├─────────────────┤
-│ int id "PK"     │◄────────│ int id "PK"     │
-│ string name     │         │ int user_id "FK"│
-│ string email    │         │ decimal total   │
-│ bool active     │         │ datetime date   │
-└─────────────────┘         └─────────────────┘
-```
+*SQLite Manager Pro - Hauptansicht mit Schema-Browser, SQL-Editor und Ergebnisbereich*
+
+### Schema Browser
+![Schema Browser](https://raw.githubusercontent.com/Ralle1976/Autoit-WebView2-UDF/main/docs/wiki/Bilder/Schema.jpg)
+
+*Schema-Panel mit Tabellen, Spalten und Datentypen*
+
+### Query Wizard
+![Query Wizard](https://raw.githubusercontent.com/Ralle1976/Autoit-WebView2-UDF/main/docs/wiki/Bilder/QuerryWizard.jpg)
+
+*Query Wizard fuer einfache SQL-Erstellung*
+
+### SQL Templates
+![Templates](https://raw.githubusercontent.com/Ralle1976/Autoit-WebView2-UDF/main/docs/wiki/Bilder/Templates.jpg)
+
+*Vorgefertigte SQL-Vorlagen fuer haeufige Abfragen*
 
 ---
 
