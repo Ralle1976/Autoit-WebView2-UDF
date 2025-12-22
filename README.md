@@ -2,6 +2,10 @@
 
 Native Microsoft Edge WebView2 integration for AutoIt3 applications using direct COM interface.
 
+[![WebView2](https://img.shields.io/badge/WebView2-Native%20COM-blue?style=flat-square&logo=microsoft-edge)](https://developer.microsoft.com/microsoft-edge/webview2/)
+[![AutoIt](https://img.shields.io/badge/AutoIt-3.3.16+-green?style=flat-square)](https://www.autoitscript.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
+
 ## Overview
 
 This UDF enables embedding modern web content into AutoIt3 GUI applications using the Microsoft Edge WebView2 control (Chromium engine). The implementation uses direct COM interface to WebView2Loader.dll without third-party ActiveX dependencies.
@@ -17,6 +21,55 @@ This UDF enables embedding modern web content into AutoIt3 GUI applications usin
 - **Multiple Instances**: Support for multiple WebView2 controls
 - **No Third-Party Dependencies**: No ActiveX controls required
 
+---
+
+## Extensions
+
+### WV2React Framework (27 UI Components)
+
+A powerful extension providing **27 ready-to-use UI components** with **Dual-Mode Rendering**:
+
+| Render Mode | Description | Overhead |
+|-------------|-------------|----------|
+| **DOM** (Default) | Vanilla JavaScript with DOM API | 0 KB |
+| **React** | React 18 with Virtual DOM | ~130 KB |
+
+**Component Categories:**
+- **Basic Input (7)**: Button, Input, Textarea, Checkbox, Radio, Switch, Select
+- **Extended (5)**: DatePicker, TimePicker, ColorPicker, Slider, FileUpload
+- **Navigation (4)**: Tabs, Breadcrumb, Pagination, Stepper
+- **Feedback (5)**: Alert, Progress, Spinner, Toast, Modal
+- **Display (6)**: Badge, Avatar, Tag, Divider, StatCard, Accordion
+
+**Quick Example:**
+```autoit
+#include "ReactFramework\Include\WV2React_Core.au3"
+
+; Initialize with DOM mode (0 KB overhead)
+$oWebView = _WV2React_Init($hGUI, 0, 0, 800, 600, "light", "#3B82F6", "dom")
+
+; Or use React mode (Virtual DOM)
+$oWebView = _WV2React_Init($hGUI, 0, 0, 800, 600, "light", "#3B82F6", "react")
+
+; Create a button
+Local $aOptions[2] = ["text", "Click me!"]
+_WV2React_CreateComponent("btn1", "button", $aOptions)
+```
+
+See [ReactFramework/README.md](ReactFramework/README.md) for full documentation.
+
+### SQLiteManager (Showcase Application)
+
+Full-featured SQLite database manager demonstrating advanced WebView2 usage with:
+- Modern web UI with Tailwind CSS
+- ERD visualization
+- Query execution and result display
+- Table management
+
+See [SQLiteManager/](SQLiteManager/) for details.
+
+---
+
 ## Requirements
 
 **System:**
@@ -28,10 +81,6 @@ This UDF enables embedding modern web content into AutoIt3 GUI applications usin
 - Download: https://developer.microsoft.com/microsoft-edge/webview2/
 - Auto-check via `_WebView2Runtime_CheckAndPromptInstall()`
 
-**Included Components:**
-- WebView2Loader.dll (Microsoft WebView2 SDK)
-- WebView2Helper DLLs (x86/x64 for callback handling)
-
 ## Installation
 
 See [INSTALL.md](INSTALL.md) for detailed instructions.
@@ -39,7 +88,43 @@ See [INSTALL.md](INSTALL.md) for detailed instructions.
 **Quick Steps:**
 1. Install WebView2 Runtime (if not present)
 2. Copy Include folder to your project
-3. Test with example scripts
+3. Copy DLLs from `bin/` to your script directory (or use relative paths)
+4. Test with example scripts
+
+## File Structure
+
+```
+WebView2-UDF/
+├── Include/                      ; Core UDF files
+│   ├── WebView2_Native.au3       ; Native COM implementation
+│   ├── WebView2_Runtime.au3      ; Runtime detection/installation
+│   ├── WebView2_Callbacks.au3    ; COM callback handlers
+│   └── WebView2_COM.au3          ; COM interface definitions
+│
+├── bin/                          ; All DLLs (central location)
+│   ├── WebView2Loader_x64.dll    ; Microsoft loader (64-bit)
+│   ├── WebView2Loader_x86.dll    ; Microsoft loader (32-bit)
+│   ├── WebView2Helper_x64.dll    ; Helper DLL (64-bit)
+│   └── WebView2Helper_x86.dll    ; Helper DLL (32-bit)
+│
+├── ReactFramework/               ; WV2React UI Framework
+│   ├── Include/
+│   │   ├── WV2React_Core.au3     ; Core with Dual-Mode
+│   │   ├── WV2React_Grid.au3     ; Data Grid component
+│   │   ├── WV2React_Map.au3      ; Leaflet.js maps
+│   │   └── js/
+│   │       ├── dom/              ; DOM API components
+│   │       └── react/            ; React components
+│   └── Examples/
+│       └── ReactFramework_Showcase.au3
+│
+├── SQLiteManager/                ; SQLite Manager showcase
+│
+└── Examples/                     ; Basic examples
+    ├── Example_NativeWebView2_Basic.au3
+    ├── Example_ExecuteScript.au3
+    └── Example_HTMLString.au3
+```
 
 ## Quick Start
 
@@ -71,45 +156,6 @@ While GUIGetMsg() <> -3
 WEnd
 
 _WebView2_Close($aWebView)
-```
-
-## Architecture
-
-### File Structure
-
-```
-Include/
-    WebView2_Native.au3       ; Native COM implementation
-    WebView2_Runtime.au3      ; Runtime detection/installation
-    WebView2_Callbacks.au3    ; COM callback handlers
-    WebView2_COM.au3          ; COM interface definitions
-    WebView2Helper_x64.dll    ; Helper DLL (64-bit)
-    WebView2Helper_x86.dll    ; Helper DLL (32-bit)
-    WebView2Loader.dll        ; Microsoft WebView2Loader
-
-Examples/
-    Example_NativeWebView2_Basic.au3
-    Example_ExecuteScript.au3
-    Example_HTMLString.au3
-
-SQLiteManager/                ; Showcase application
-    SQLiteManager.au3
-    ui/
-```
-
-### Communication Pattern
-
-The implementation uses polling-based JavaScript communication, which is more reliable than COM callbacks in AutoIt's single-threaded environment:
-
-```autoit
-; In your event loop
-If TimerDiff($iLastPoll) > 100 Then
-    $iLastPoll = TimerInit()
-    Local $sAction = _WebView2_ExecuteScript($aWebView, "getPendingAction()")
-    If $sAction <> "null" Then
-        ; Handle action
-    EndIf
-EndIf
 ```
 
 ## API Reference
@@ -182,26 +228,12 @@ Func _CheckPendingAction()
 EndFunc
 ```
 
-## Examples
-
-**Example_NativeWebView2_Basic.au3**
-Basic WebView2 setup and navigation.
-
-**Example_ExecuteScript.au3**
-JavaScript execution and data exchange.
-
-**Example_HTMLString.au3**
-Load HTML content from string.
-
-**SQLiteManager (Showcase)**
-Full-featured SQLite database manager demonstrating advanced WebView2 usage with polling-based communication and pagination.
-
 ## Troubleshooting
 
 | Problem | Solution |
 |---------|----------|
 | Runtime not installed | Use `_WebView2Runtime_CheckAndPromptInstall()` |
-| WebView2Loader.dll not found | Check Include folder for architecture-specific DLL |
+| WebView2Loader.dll not found | Check `bin/` folder or copy DLLs to script directory |
 | Controller creation timeout | Ensure callback handles are global variables |
 | JavaScript communication fails | Use polling method with `getPendingAction()` |
 | Modern website doesn't render | Verify Runtime is installed and up-to-date |
@@ -209,7 +241,7 @@ Full-featured SQLite database manager demonstrating advanced WebView2 usage with
 ## Deployment Checklist
 
 - [ ] Include WebView2_Native.au3, WebView2_Runtime.au3
-- [ ] Include WebView2Loader.dll and Helper DLLs (x86/x64)
+- [ ] Include WebView2Loader.dll and Helper DLLs (from `bin/`)
 - [ ] Include WebView2_Callbacks.au3, WebView2_COM.au3
 - [ ] Add Runtime check on application startup
 - [ ] Test on target Windows versions
@@ -220,6 +252,7 @@ Full-featured SQLite database manager demonstrating advanced WebView2 usage with
 - **Microsoft WebView2**: https://developer.microsoft.com/microsoft-edge/webview2/
 - **WebView2 Documentation**: https://learn.microsoft.com/microsoft-edge/webview2/
 - **AutoIt Forums**: https://www.autoitscript.com/forum/
+- **Wiki**: https://github.com/Ralle1976/Autoit-WebView2-UDF/wiki
 
 ## License
 
