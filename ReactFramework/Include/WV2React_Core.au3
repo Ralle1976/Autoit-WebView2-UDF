@@ -5,32 +5,39 @@
 ; Title .........: WV2React_Core
 ; AutoIt Version : 3.3.16.1+
 ; Language ......: English/German
-; Description ...: High-Level React Wrapper for WebView2 - Core Module
+; Description ...: Modulares UI-Framework fuer WebView2 mit Dual-Mode (DOM/React)
 ; Author(s) .....: Ralle1976
 ; ===============================================================================================================================
 ;
 ; BESCHREIBUNG:
-; Dieses Modul ermoeglicht die einfache Nutzung moderner React-UI-Komponenten
+; Dieses Modul ermoeglicht die einfache Nutzung moderner UI-Komponenten
 ; in AutoIt-Anwendungen ohne JavaScript-Kenntnisse.
 ;
+; RENDER-MODI:
+; - "dom"   : Vanilla JavaScript mit DOM API (Standard, 0 KB Overhead)
+; - "react" : React 18 mit Virtual DOM (fuer komplexe, dynamische UIs)
+;
 ; FEATURES:
-; - Automatisches Laden von React, Tailwind CSS via CDN
+; - 27 vorgefertigte UI-Komponenten
+; - Tailwind CSS via CDN fuer modernes Styling
 ; - High-Level Funktionen fuer Grids, Karten, Dashboards
 ; - Bidirektionales JSON-Kommunikationsprotokoll
 ; - Event-Callbacks fuer Benutzerinteraktionen
-; - Theming-System mit Primaerfarben-Konfiguration
+; - Theming-System mit Light/Dark Mode und Primaerfarben
 ;
 ; ===============================================================================================================================
 
 ; #CONSTANTS# ===================================================================================================================
-Global Const $WV2REACT_VERSION = "1.0.0"
+Global Const $WV2REACT_VERSION = "2.0.0"
 Global Const $WV2REACT_DEFAULT_THEME = "light"
+Global Const $WV2REACT_DEFAULT_MODE = "dom"
 ; ===============================================================================================================================
 
 ; #VARIABLES# ===================================================================================================================
 Global $__g_oWV2React_WebView = 0           ; WebView2 Instanz
 Global $__g_sWV2React_Theme = "light"       ; Aktuelles Theme
 Global $__g_sWV2React_PrimaryColor = "#3B82F6"  ; Tailwind Blue-500
+Global $__g_sWV2React_RenderMode = "dom"    ; Render-Modus: "dom" oder "react"
 Global $__g_aWV2React_Components[1][4]      ; [n][0]=ID, [n][1]=Type, [n][2]=State, [n][3]=Callback
 $__g_aWV2React_Components[0][0] = 0         ; Count
 Global $__g_aWV2React_EventQueue[1]         ; Event-Queue
@@ -54,21 +61,29 @@ Global $__g_bWV2React_Initialized = False   ; Init-Status
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _WV2React_Init
-; Description ...: Initialisiert das React Framework in WebView2
-; Syntax ........: _WV2React_Init($hWnd, $iLeft, $iTop, $iWidth, $iHeight, [$sTheme = "light"], [$sPrimaryColor = ""])
+; Description ...: Initialisiert das UI-Framework in WebView2
+; Syntax ........: _WV2React_Init($hWnd, $iLeft, $iTop, $iWidth, $iHeight, [$sTheme], [$sPrimaryColor], [$sRenderMode])
 ; Parameters ....: $hWnd          - Handle des Parent-Fensters
 ;                  $iLeft/Top     - Position
 ;                  $iWidth/Height - Groesse
-;                  $sTheme        - [optional] "light" oder "dark"
+;                  $sTheme        - [optional] "light" oder "dark" (Standard: "light")
 ;                  $sPrimaryColor - [optional] Hex-Farbcode (z.B. "#3B82F6")
+;                  $sRenderMode   - [optional] "dom" oder "react" (Standard: "dom")
+;                                   "dom"   = Vanilla JS, 0 KB Overhead, schneller
+;                                   "react" = React 18, Virtual DOM, fuer komplexe UIs
 ; Return values .: Success - WebView2 Array
 ;                  Failure - 0 und setzt @error
 ; Author ........: Ralle1976
 ; ===============================================================================================================================
-Func _WV2React_Init($hWnd, $iLeft, $iTop, $iWidth, $iHeight, $sTheme = "light", $sPrimaryColor = "")
-    ; Theme speichern
+Func _WV2React_Init($hWnd, $iLeft, $iTop, $iWidth, $iHeight, $sTheme = "light", $sPrimaryColor = "", $sRenderMode = "dom")
+    ; Einstellungen speichern
     $__g_sWV2React_Theme = $sTheme
     If $sPrimaryColor <> "" Then $__g_sWV2React_PrimaryColor = $sPrimaryColor
+    If $sRenderMode = "react" Then
+        $__g_sWV2React_RenderMode = "react"
+    Else
+        $__g_sWV2React_RenderMode = "dom"
+    EndIf
 
     ; WebView2 erstellen
     Local $aWebView = _WebView2_Create($hWnd, $iLeft, $iTop, $iWidth, $iHeight)
@@ -353,10 +368,17 @@ Func __WV2React_GenerateHTML()
     $sHtml &= '  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />' & @CRLF
     $sHtml &= '  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>' & @CRLF
     $sHtml &= '' & @CRLF
-    $sHtml &= '  <!-- React 18 -->' & @CRLF
-    $sHtml &= '  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>' & @CRLF
-    $sHtml &= '  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>' & @CRLF
-    $sHtml &= '' & @CRLF
+
+    ; React 18 nur im React-Mode laden
+    If $__g_sWV2React_RenderMode = "react" Then
+        $sHtml &= '  <!-- React 18 (React-Mode) -->' & @CRLF
+        $sHtml &= '  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>' & @CRLF
+        $sHtml &= '  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>' & @CRLF
+        $sHtml &= '' & @CRLF
+    Else
+        $sHtml &= '  <!-- DOM-Mode: Kein React geladen (0 KB Overhead) -->' & @CRLF
+    EndIf
+
     $sHtml &= '  <style>' & @CRLF
     $sHtml &= '    body { margin: 0; padding: 0; font-family: system-ui, sans-serif; }' & @CRLF
     $sHtml &= '    .dark body { background: #1f2937; color: #f3f4f6; }' & @CRLF
@@ -923,16 +945,22 @@ EndFunc
 Func __WV2React_LoadUIComponentsFromFile()
     Local $sJs = ""
 
+    ; Unterordner basierend auf Render-Mode (dom/ oder react/)
+    Local $sSubDir = $__g_sWV2React_RenderMode ; "dom" oder "react"
+
     ; Pfad zur JS-Datei ermitteln (relativ zum Include-Verzeichnis)
     Local $sScriptDir = @ScriptDir
     Local $sJsFile = ""
 
-    ; Verschiedene Pfade versuchen
-    Local $aPaths[4]
-    $aPaths[0] = $sScriptDir & "\Include\js\all-components.js"
-    $aPaths[1] = $sScriptDir & "\..\Include\js\all-components.js"
-    $aPaths[2] = @ScriptDir & "\js\all-components.js"
-    $aPaths[3] = StringReplace(@ScriptFullPath, @ScriptName, "") & "Include\js\all-components.js"
+    ; Verschiedene Pfade versuchen (mit Mode-Unterordner)
+    Local $aPaths[6]
+    $aPaths[0] = $sScriptDir & "\Include\js\" & $sSubDir & "\all-components.js"
+    $aPaths[1] = $sScriptDir & "\..\Include\js\" & $sSubDir & "\all-components.js"
+    $aPaths[2] = @ScriptDir & "\js\" & $sSubDir & "\all-components.js"
+    ; Fallback: Alte Struktur ohne Unterordner (Rueckwaertskompatibilitaet)
+    $aPaths[3] = $sScriptDir & "\Include\js\all-components.js"
+    $aPaths[4] = $sScriptDir & "\..\Include\js\all-components.js"
+    $aPaths[5] = StringReplace(@ScriptFullPath, @ScriptName, "") & "Include\js\all-components.js"
 
     For $i = 0 To UBound($aPaths) - 1
         If FileExists($aPaths[$i]) Then
@@ -944,7 +972,11 @@ Func __WV2React_LoadUIComponentsFromFile()
     ; Fallback: Suche im ReactFramework Verzeichnis
     If $sJsFile = "" Then
         Local $sReactDir = StringRegExpReplace($sScriptDir, "\\Examples$|\\Beispiele$", "")
-        $sJsFile = $sReactDir & "\Include\js\all-components.js"
+        $sJsFile = $sReactDir & "\Include\js\" & $sSubDir & "\all-components.js"
+        ; Nochmal Fallback ohne Unterordner
+        If Not FileExists($sJsFile) Then
+            $sJsFile = $sReactDir & "\Include\js\all-components.js"
+        EndIf
     EndIf
 
     If FileExists($sJsFile) Then
@@ -953,12 +985,13 @@ Func __WV2React_LoadUIComponentsFromFile()
         If $hFile <> -1 Then
             $sJs = FileRead($hFile)
             FileClose($hFile)
-            ConsoleWrite("[WV2React] UI-Komponenten geladen aus: " & $sJsFile & @CRLF)
+            ConsoleWrite("[WV2React] UI-Komponenten geladen (" & $sSubDir & "-Mode): " & $sJsFile & @CRLF)
         Else
             ConsoleWrite("[WV2React] FEHLER: Konnte JS-Datei nicht oeffnen: " & $sJsFile & @CRLF)
         EndIf
     Else
         ConsoleWrite("[WV2React] WARNUNG: all-components.js nicht gefunden!" & @CRLF)
+        ConsoleWrite("[WV2React] Mode: " & $sSubDir & @CRLF)
         ConsoleWrite("[WV2React] Gesuchte Pfade:" & @CRLF)
         For $i = 0 To UBound($aPaths) - 1
             ConsoleWrite("  - " & $aPaths[$i] & @CRLF)

@@ -1,6 +1,6 @@
 # WV2React Framework
 
-Ein modulares AutoIt-WebView2 Hybrid-Framework mit modernen UI-Komponenten.
+Ein modulares AutoIt-WebView2 Hybrid-Framework mit modernen UI-Komponenten und Dual-Mode Rendering.
 
 ## Uebersicht
 
@@ -9,23 +9,42 @@ WV2React ermoeglicht die Erstellung moderner Web-basierter Benutzeroberflaechen 
 ### Features
 
 - **27 UI-Komponenten** - Buttons, Inputs, Modals, Toasts, Charts und mehr
+- **Dual-Mode Rendering** - Waehlbar zwischen DOM API und React 18
 - **Theming** - Light/Dark Mode mit anpassbarer Primaerfarbe
 - **Event-System** - Bidirektionale Kommunikation zwischen AutoIt und JavaScript
 - **Grid-Komponente** - Sortierung, Filterung, Paginierung
 - **Map-Komponente** - Leaflet.js Integration mit Markern
+
+## Render-Modi
+
+Das Framework unterstuetzt zwei Rendering-Engines:
+
+| Modus | Beschreibung | Vorteile |
+|-------|--------------|----------|
+| **dom** (Standard) | Vanilla JavaScript mit DOM API | 0 KB Overhead, schnellerer Load |
+| **react** | React 18 mit Virtual DOM | Deklarativ, effiziente Updates |
+
+### Wann welchen Modus verwenden?
+
+- **DOM-Modus**: Einfache UIs, Performance-kritische Anwendungen, wenige dynamische Updates
+- **React-Modus**: Komplexe UIs, viele dynamische Updates, deklarative Programmierung bevorzugt
 
 ## Verzeichnisstruktur
 
 ```
 ReactFramework/
 ├── Include/
-│   ├── WV2React_Core.au3      ; Kern-Framework
+│   ├── WV2React_Core.au3      ; Kern-Framework mit Mode-Switch
 │   ├── WV2React_Grid.au3      ; Grid-Erweiterung
 │   ├── WV2React_Map.au3       ; Map-Erweiterung
 │   ├── WV2React_UI.au3        ; UI-Komponenten-Wrapper
 │   └── js/
-│       ├── all-components.js  ; Alle JS-Komponenten gebundelt
-│       └── components/        ; Einzelne JS-Komponenten
+│       ├── dom/               ; DOM API Komponenten
+│       │   ├── all-components.js
+│       │   └── components/
+│       └── react/             ; React Komponenten
+│           ├── all-components.js
+│           └── components/
 ├── Examples/
 │   ├── ReactFramework_Showcase.au3  ; Vollstaendige Demo
 │   ├── StandortManager.au3          ; Praxis-Beispiel
@@ -65,7 +84,9 @@ Local $hGUI = GUICreate("Meine App", 800, 600)
 GUISetState(@SW_SHOW)
 
 ; WebView2 initialisieren
-Local $oWebView = _WV2React_Init($hGUI, 0, 0, 800, 600, "light", "#3B82F6")
+; Parameter: $hGUI, $x, $y, $w, $h, $sTheme, $sColor, $sRenderMode
+; $sRenderMode: "dom" (Standard) oder "react"
+Local $oWebView = _WV2React_Init($hGUI, 0, 0, 800, 600, "light", "#3B82F6", "dom")
 
 ; Event-Handler registrieren
 _WV2React_OnEvent(_MeinEventHandler)
@@ -102,7 +123,7 @@ EndFunc
 
 | Funktion | Beschreibung |
 |----------|--------------|
-| `_WV2React_Init($hGUI, $x, $y, $w, $h, $sTheme, $sColor)` | Framework initialisieren |
+| `_WV2React_Init($hGUI, $x, $y, $w, $h, $sTheme, $sColor, $sRenderMode)` | Framework initialisieren |
 | `_WV2React_SetTheme($sTheme)` | Theme wechseln ("light"/"dark") |
 | `_WV2React_SetPrimaryColor($sColor)` | Primaerfarbe setzen (Hex) |
 | `_WV2React_CreateComponent($sId, $sType, $aOptions)` | Komponente erstellen |
@@ -111,6 +132,16 @@ EndFunc
 | `_WV2React_GetComponentState($sId)` | Status abfragen |
 | `_WV2React_OnEvent($funcCallback)` | Event-Handler registrieren |
 | `_WV2React_ProcessEvents()` | Events verarbeiten |
+
+### Neuer Parameter: $sRenderMode
+
+```autoit
+; DOM-Modus (Standard) - Schnell, 0 KB Overhead
+Local $oWebView = _WV2React_Init($hGUI, 0, 0, 800, 600, "light", "#3B82F6", "dom")
+
+; React-Modus - Virtual DOM, deklarativ
+Local $oWebView = _WV2React_Init($hGUI, 0, 0, 800, 600, "light", "#3B82F6", "react")
+```
 
 ### Grid-Funktionen
 

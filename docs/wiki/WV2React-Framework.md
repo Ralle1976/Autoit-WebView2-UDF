@@ -7,10 +7,25 @@ Das WV2React Framework ist eine Erweiterung fuer die WebView2 UDF, die moderne U
 WV2React ermoeglicht die Erstellung moderner Web-basierter Benutzeroberflaechen in AutoIt-Anwendungen. Das Framework bietet:
 
 - **27 vorgefertigte UI-Komponenten**
+- **Dual-Mode Rendering** (DOM API oder React 18)
 - **Light/Dark Mode Theming**
 - **Bidirektionales Event-System**
 - **Grid mit Sortierung, Filterung, Paginierung**
 - **Leaflet.js Kartenintegration**
+
+## Render-Modi
+
+Das Framework unterstuetzt zwei Rendering-Engines:
+
+| Modus | Beschreibung | Vorteile |
+|-------|--------------|----------|
+| **dom** (Standard) | Vanilla JavaScript mit DOM API | 0 KB Overhead, schnellerer Load |
+| **react** | React 18 mit Virtual DOM | Deklarativ, effiziente Updates |
+
+### Wann welchen Modus verwenden?
+
+- **DOM-Modus**: Einfache UIs, Performance-kritische Anwendungen, wenige dynamische Updates
+- **React-Modus**: Komplexe UIs, viele dynamische Updates, deklarative Programmierung bevorzugt
 
 ## Installation
 
@@ -27,6 +42,8 @@ MeinProjekt/
     │   ├── WV2React_Grid.au3
     │   ├── WV2React_Map.au3
     │   └── js/
+    │       ├── dom/           ; DOM API Komponenten
+    │       └── react/         ; React Komponenten
     └── Examples/
 ```
 
@@ -59,8 +76,9 @@ Local $hGUI = GUICreate("WV2React Demo", 800, 600)
 GUISetState(@SW_SHOW)
 
 ; Framework initialisieren
-; Parameter: $hGUI, $x, $y, $width, $height, $theme, $primaryColor
-Local $oWebView = _WV2React_Init($hGUI, 0, 0, 800, 600, "light", "#3B82F6")
+; Parameter: $hGUI, $x, $y, $width, $height, $theme, $primaryColor, $renderMode
+; $renderMode: "dom" (Standard, 0 KB Overhead) oder "react" (React 18)
+Local $oWebView = _WV2React_Init($hGUI, 0, 0, 800, 600, "light", "#3B82F6", "dom")
 If @error Then Exit MsgBox(16, "Fehler", "WebView2 konnte nicht initialisiert werden")
 
 ; Event-Handler registrieren
@@ -92,6 +110,13 @@ Func _OnComponentEvent($sType, $sComponentId, $sData)
 EndFunc
 ```
 
+### React-Modus aktivieren
+
+```autoit
+; React-Modus - laedt React 18 CDN (~130 KB)
+Local $oWebView = _WV2React_Init($hGUI, 0, 0, 800, 600, "light", "#3B82F6", "react")
+```
+
 ## API-Referenz
 
 ### Core-Funktionen
@@ -100,7 +125,7 @@ EndFunc
 Initialisiert das Framework.
 
 ```autoit
-$oWebView = _WV2React_Init($hGUI, $iX, $iY, $iWidth, $iHeight, $sTheme = "light", $sPrimaryColor = "#3B82F6")
+$oWebView = _WV2React_Init($hGUI, $iX, $iY, $iWidth, $iHeight, $sTheme = "light", $sPrimaryColor = "#3B82F6", $sRenderMode = "dom")
 ```
 
 | Parameter | Typ | Beschreibung |
@@ -110,6 +135,7 @@ $oWebView = _WV2React_Init($hGUI, $iX, $iY, $iWidth, $iHeight, $sTheme = "light"
 | $iWidth, $iHeight | Integer | Groesse |
 | $sTheme | String | "light" oder "dark" |
 | $sPrimaryColor | String | Hex-Farbe (z.B. "#3B82F6") |
+| $sRenderMode | String | "dom" (Standard) oder "react" |
 
 #### _WV2React_CreateComponent
 Erstellt eine UI-Komponente.
@@ -154,7 +180,7 @@ _WV2React_SetPrimaryColor("#10B981")  ; Gruen
 
 ## Verfuegbare Komponenten
 
-### Basis-Eingabe
+### Basis-Eingabe (7)
 
 | Komponente | Beschreibung | Optionen |
 |------------|--------------|----------|
@@ -166,7 +192,7 @@ _WV2React_SetPrimaryColor("#10B981")  ; Gruen
 | WV2Switch | Toggle-Schalter | label, checked |
 | WV2Select | Dropdown | options, selected |
 
-### Erweiterte Eingabe
+### Erweiterte Eingabe (5)
 
 | Komponente | Beschreibung | Optionen |
 |------------|--------------|----------|
@@ -176,7 +202,7 @@ _WV2React_SetPrimaryColor("#10B981")  ; Gruen
 | WV2Slider | Schieberegler | min, max, value, step |
 | WV2FileUpload | Datei-Upload | accept, multiple |
 
-### Navigation
+### Navigation (4)
 
 | Komponente | Beschreibung | Optionen |
 |------------|--------------|----------|
@@ -185,7 +211,7 @@ _WV2React_SetPrimaryColor("#10B981")  ; Gruen
 | WV2Pagination | Seitennavigation | total, current, perPage |
 | WV2Stepper | Schritt-Anzeige | steps, current |
 
-### Feedback
+### Feedback (5)
 
 | Komponente | Beschreibung | Optionen |
 |------------|--------------|----------|
@@ -195,7 +221,7 @@ _WV2React_SetPrimaryColor("#10B981")  ; Gruen
 | WV2Toast | Benachrichtigung | message, type, duration |
 | WV2Modal | Dialog-Fenster | title, content |
 
-### Anzeige
+### Anzeige (6)
 
 | Komponente | Beschreibung | Optionen |
 |------------|--------------|----------|
@@ -338,6 +364,44 @@ EndFunc
 | select | Element ausgewaehlt | Grid, Tabs |
 | submit | Formular abgesendet | Form |
 | close | Geschlossen | Modal, Toast |
+
+## Technische Details
+
+### Architektur
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    AutoIt Anwendung                             │
+├─────────────────────────────────────────────────────────────────┤
+│                    WV2React_Core.au3                            │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │ _WV2React_Init($renderMode = "dom" | "react")           │    │
+│  └─────────────────────────────────────────────────────────┘    │
+├─────────────────────────────────────────────────────────────────┤
+│                    WebView2                                      │
+│  ┌─────────────────────┐  ┌─────────────────────────────────┐   │
+│  │ DOM-Modus           │  │ React-Modus                     │   │
+│  │ js/dom/             │  │ js/react/                       │   │
+│  │ - Vanilla JS        │  │ - React 18 CDN                  │   │
+│  │ - 0 KB Overhead     │  │ - React.createElement()         │   │
+│  │ - document.create() │  │ - Virtual DOM                   │   │
+│  └─────────────────────┘  └─────────────────────────────────┘   │
+├─────────────────────────────────────────────────────────────────┤
+│                    Tailwind CSS (CDN)                            │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Komponenten-Ordnerstruktur
+
+```
+Include/js/
+├── dom/                    ; DOM API Variante (Standard)
+│   ├── all-components.js   ; Alle Komponenten gebundelt
+│   └── components/         ; Einzelne Komponenten-Dateien
+└── react/                  ; React Variante
+    ├── all-components.js   ; React.createElement() Komponenten
+    └── components/         ; Einzelne Komponenten-Dateien
+```
 
 ## Wichtige Hinweise
 

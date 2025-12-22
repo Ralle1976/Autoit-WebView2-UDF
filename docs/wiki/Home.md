@@ -38,6 +38,33 @@ WebView2 is a Microsoft control that allows embedding web content (HTML, CSS, Ja
 
 ### Showcase
 - [[SQLiteManager]] - Full-featured database manager demo
+- [[WV2React Framework]] - Modern UI components (27 components)
+
+---
+
+## Extensions
+
+### WV2React Framework
+
+A powerful extension that provides **27 ready-to-use UI components** with React-inspired programming model:
+
+| Category | Components |
+|----------|------------|
+| **Basic Input** | Button, Input, Textarea, Checkbox, Radio, Switch, Select |
+| **Extended** | DatePicker, TimePicker, ColorPicker, Slider, FileUpload |
+| **Navigation** | Tabs, Breadcrumb, Pagination, Stepper |
+| **Feedback** | Alert, Progress, Spinner, Toast, Modal |
+| **Display** | Badge, Avatar, Tag, Divider, StatCard, Accordion |
+| **Special** | Grid (sorting/filtering), Map (Leaflet.js), Chart, TreeView |
+
+**Features:**
+- **Dual-Mode Rendering**: Choose between DOM API (0 KB overhead) or React 18
+- Light/Dark mode theming
+- Customizable primary color
+- Bidirectional event system
+- No build tools required (CDN-based)
+
+See [[WV2React Framework]] for complete documentation.
 
 ---
 
