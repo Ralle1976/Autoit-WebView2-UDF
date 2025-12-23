@@ -86,7 +86,8 @@ Func _WebView2_GetLoaderDll($sPath = "")
     Local $sArchAlt = @AutoItX64 ? "_x64" : ""  ; Alternative naming
 
     ; Search paths for WebView2Loader.dll - try architecture-specific first
-    Local $aPaths[12] = [ _
+    ; Supports: ScriptDir, bin/, ../bin/, ../../bin/, ../../../bin/ (for Extensions)
+    Local $aPaths[16] = [ _
         $sPath, _
         @ScriptDir & "\WebView2Loader" & $sArch & ".dll", _
         @ScriptDir & "\WebView2Loader" & $sArchAlt & ".dll", _
@@ -95,6 +96,10 @@ Func _WebView2_GetLoaderDll($sPath = "")
         @ScriptDir & "\bin\WebView2Loader.dll", _
         @ScriptDir & "\..\bin\WebView2Loader" & $sArch & ".dll", _
         @ScriptDir & "\..\bin\WebView2Loader.dll", _
+        @ScriptDir & "\..\..\bin\WebView2Loader" & $sArch & ".dll", _
+        @ScriptDir & "\..\..\bin\WebView2Loader.dll", _
+        @ScriptDir & "\..\..\..\bin\WebView2Loader" & $sArch & ".dll", _
+        @ScriptDir & "\..\..\..\bin\WebView2Loader.dll", _
         @SystemDir & "\WebView2Loader.dll", _
         @WindowsDir & "\System32\WebView2Loader.dll", _
         @WindowsDir & "\SysWOW64\WebView2Loader.dll", _

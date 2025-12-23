@@ -70,7 +70,8 @@ Func _WV2CB_LoadHelperDll($sPath = "")
     Local $sArch = @AutoItX64 ? "_x64" : "_x86"
 
     ; Search paths for WebView2Helper.dll - try architecture-specific first
-    Local $aPaths[12] = [ _
+    ; Supports: ScriptDir, bin/, ../bin/, ../../bin/, ../../../bin/ (for Extensions)
+    Local $aPaths[16] = [ _
         $sPath, _
         @ScriptDir & "\WebView2Helper" & $sArch & ".dll", _
         @ScriptDir & "\WebView2Helper.dll", _
@@ -78,6 +79,10 @@ Func _WV2CB_LoadHelperDll($sPath = "")
         @ScriptDir & "\bin\WebView2Helper.dll", _
         @ScriptDir & "\..\bin\WebView2Helper" & $sArch & ".dll", _
         @ScriptDir & "\..\bin\WebView2Helper.dll", _
+        @ScriptDir & "\..\..\bin\WebView2Helper" & $sArch & ".dll", _
+        @ScriptDir & "\..\..\bin\WebView2Helper.dll", _
+        @ScriptDir & "\..\..\..\bin\WebView2Helper" & $sArch & ".dll", _
+        @ScriptDir & "\..\..\..\bin\WebView2Helper.dll", _
         @ScriptDir & "\..\Include\WebView2Helper" & $sArch & ".dll", _
         @ScriptDir & "\..\Include\WebView2Helper.dll", _
         @SystemDir & "\WebView2Helper.dll", _
