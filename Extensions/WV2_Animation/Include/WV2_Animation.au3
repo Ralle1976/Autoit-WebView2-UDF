@@ -100,8 +100,24 @@ Func _WV2Anim_Init($hWnd, $iLeft, $iTop, $iWidth, $iHeight, $sInitialHTML = "")
     Local $sHtml = __WV2Anim_GenerateHTML($sInitialHTML)
     _WebView2_NavigateToString($aWebView, $sHtml)
 
-    ; Warten bis Anime.js geladen ist
-    Sleep(800)
+    ; Warten bis Anime.js geladen ist (max 5 Sekunden)
+    Local $iTimeout = 5000
+    Local $iStart = TimerInit()
+    Local $bAnimeLoaded = False
+
+    While TimerDiff($iStart) < $iTimeout
+        Sleep(100)
+        Local $sResult = _WebView2_ExecuteScript($aWebView, "typeof anime !== 'undefined' ? 'loaded' : 'waiting'", 500)
+        If $sResult = '"loaded"' Or $sResult = "loaded" Then
+            $bAnimeLoaded = True
+            ConsoleWrite("[WV2_Animation] Anime.js loaded successfully!" & @CRLF)
+            ExitLoop
+        EndIf
+    WEnd
+
+    If Not $bAnimeLoaded Then
+        ConsoleWrite("[WV2_Animation] WARNING: Anime.js may not have loaded from CDN!" & @CRLF)
+    EndIf
 
     $__g_bWV2Anim_Initialized = True
     ConsoleWrite("[WV2_Animation] Initialized with Anime.js v3.2.1" & @CRLF)

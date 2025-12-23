@@ -94,8 +94,24 @@ Func _WV2Chart_Init($hWnd, $iLeft, $iTop, $iWidth, $iHeight, $sTheme = "light")
 	Local $sHtml = __WV2Chart_GenerateHTML()
 	_WebView2_NavigateToString($aWebView, $sHtml)
 
-	; Warten bis geladen
-	Sleep(800)
+	; Warten bis Chart.js geladen ist (max 5 Sekunden)
+	Local $iTimeout = 5000
+	Local $iStart = TimerInit()
+	Local $bChartJsLoaded = False
+
+	While TimerDiff($iStart) < $iTimeout
+		Sleep(100)
+		Local $sResult = _WebView2_ExecuteScript($aWebView, "typeof Chart !== 'undefined' ? 'loaded' : 'waiting'", 500)
+		If $sResult = '"loaded"' Or $sResult = "loaded" Then
+			$bChartJsLoaded = True
+			ConsoleWrite("[WV2_Chart] Chart.js loaded successfully!" & @CRLF)
+			ExitLoop
+		EndIf
+	WEnd
+
+	If Not $bChartJsLoaded Then
+		ConsoleWrite("[WV2_Chart] WARNING: Chart.js may not have loaded from CDN!" & @CRLF)
+	EndIf
 
 	; Theme anwenden
 	__WV2Chart_ApplyTheme()
