@@ -557,14 +557,14 @@ Func __WV2Chart_GenerateJS()
 	$sJs &= "  }," & @CRLF
 	$sJs &= "" & @CRLF
 	$sJs &= "  // Chart click handler" & @CRLF
-	$sJs &= "  onChartClick: function(chartId, event, activeElements) {" & @CRLF
+	$sJs &= "  onChartClick: function(chartId, evt, activeElements) {" & @CRLF
 	$sJs &= "    if (activeElements.length === 0) return;" & @CRLF
 	$sJs &= "" & @CRLF
 	$sJs &= "    const firstElement = activeElements[0];" & @CRLF
 	$sJs &= "    const datasetIndex = firstElement.datasetIndex;" & @CRLF
 	$sJs &= "    const dataIndex = firstElement.index;" & @CRLF
 	$sJs &= "" & @CRLF
-	$sJs &= "    const event = {" & @CRLF
+	$sJs &= "    const clickData = {" & @CRLF
 	$sJs &= "      event: 'chartClick'," & @CRLF
 	$sJs &= "      chartId: chartId," & @CRLF
 	$sJs &= "      datasetIndex: datasetIndex," & @CRLF
@@ -572,7 +572,7 @@ Func __WV2Chart_GenerateJS()
 	$sJs &= "    };" & @CRLF
 	$sJs &= "" & @CRLF
 	$sJs &= "    if (window.chrome && window.chrome.webview) {" & @CRLF
-	$sJs &= "      window.chrome.webview.postMessage(JSON.stringify(event));" & @CRLF
+	$sJs &= "      window.chrome.webview.postMessage(JSON.stringify(clickData));" & @CRLF
 	$sJs &= "    }" & @CRLF
 	$sJs &= "  }," & @CRLF
 	$sJs &= "" & @CRLF
