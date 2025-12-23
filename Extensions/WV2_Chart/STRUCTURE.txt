@@ -1,0 +1,48 @@
+WV2_Chart Extension - Verzeichnisstruktur
+==========================================
+
+Extensions/WV2_Chart/
+├── Include/
+│   ├── WV2_Chart.au3          # Haupt-Include mit allen API-Funktionen
+│   └── js/                    # Reserviert für zusätzliche JS-Dateien (aktuell nicht benötigt)
+│
+├── Examples/
+│   └── WV2_Chart_Demo.au3     # Vollständiges Demo-Beispiel
+│
+├── README.md                   # Ausführliche Dokumentation
+└── STRUCTURE.txt               # Diese Datei
+
+Beschreibung der Dateien:
+--------------------------
+
+WV2_Chart.au3
+  - Haupt-API für Chart.js Integration
+  - Initialisierung von WebView2 mit Chart.js CDN
+  - Chart-Erstellung und -Verwaltung
+  - Theme-System (Light/Dark)
+  - Event-Callbacks
+  - JSON-Command-Kommunikation
+
+WV2_Chart_Demo.au3
+  - Showcase aller Features
+  - Line, Bar, Pie, Doughnut Charts
+  - Echtzeit-Updates
+  - Theme-Wechsel
+  - Click-Events
+  - Best Practices
+
+Abhängigkeiten:
+---------------
+- WebView2_Native.au3 (aus Include/)
+- WebView2 Runtime (automatische Prüfung)
+- Chart.js 4.4.1 (via CDN, keine lokale Installation nötig)
+
+Installation:
+-------------
+1. Kopiere den gesamten WV2_Chart Ordner nach Extensions/
+2. Include in deinem Script: #include "Extensions\WV2_Chart\Include\WV2_Chart.au3"
+3. Stelle sicher, dass bin/WebView2Loader*.dll verfügbar ist
+
+Verwendung:
+-----------
+Siehe README.md für ausführliche Beispiele und API-Referenz.

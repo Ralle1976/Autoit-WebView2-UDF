@@ -68,6 +68,41 @@ Full-featured SQLite database manager demonstrating advanced WebView2 usage with
 
 See [SQLiteManager/](SQLiteManager/) for details.
 
+### WV2_Chart (Chart.js Integration)
+
+Data visualization with Chart.js:
+- Line, Bar, Pie, Doughnut, Radar, Polar Area Charts
+- Real-time data updates
+- Light/Dark theme support
+- Click event callbacks
+
+```autoit
+#include "Extensions\WV2_Chart\Include\WV2_Chart.au3"
+
+$aWebView = _WV2Chart_Init($hGUI, 0, 0, 800, 600)
+_WV2Chart_Create("chart1", $WV2CHART_TYPE_LINE, $aLabels, $aDatasets)
+```
+
+See [Extensions/WV2_Chart/](Extensions/WV2_Chart/) for details.
+
+### WV2_Animation (Anime.js Integration)
+
+Powerful animations with Anime.js:
+- Property animations (translate, rotate, scale, opacity)
+- Timeline system for sequences
+- Stagger effects for multiple elements
+- SVG path drawing and morphing
+- 30+ easing functions
+
+```autoit
+#include "Extensions\WV2_Animation\Include\WV2_Animation.au3"
+
+$aWebView = _WV2Anim_Init($hGUI, 0, 0, 800, 600)
+_WV2Anim_Animate(".box", "translateX", 250, 1000, $WV2ANIM_EASE_OUT_ELASTIC)
+```
+
+See [Extensions/WV2_Animation/](Extensions/WV2_Animation/) for details.
+
 ---
 
 ## Requirements
@@ -119,6 +154,14 @@ WebView2-UDF/
 │       └── ReactFramework_Showcase.au3
 │
 ├── SQLiteManager/                ; SQLite Manager showcase
+│
+├── Extensions/                   ; Additional Extensions
+│   ├── WV2_Chart/                ; Chart.js integration
+│   │   ├── Include/WV2_Chart.au3
+│   │   └── Examples/
+│   └── WV2_Animation/            ; Anime.js integration
+│       ├── Include/WV2_Animation.au3
+│       └── Examples/
 │
 └── Examples/                     ; Basic examples
     ├── Example_NativeWebView2_Basic.au3
