@@ -20,6 +20,10 @@
 - [[ERD Visualization]]
 - [[WV2React Framework]]
 
+### Extensions
+- [[WV2_Chart]]
+- [[WV2_Animation]]
+
 ### Help
 - [[Troubleshooting]]
 - [[FAQ]]

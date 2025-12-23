@@ -40,6 +40,10 @@ WebView2 is a Microsoft control that allows embedding web content (HTML, CSS, Ja
 - [[SQLiteManager]] - Full-featured database manager demo
 - [[WV2React Framework]] - Modern UI components (27 components)
 
+### Extensions
+- [[WV2_Chart]] - Chart.js data visualization
+- [[WV2_Animation]] - Anime.js animations
+
 ---
 
 ## Extensions
@@ -65,6 +69,27 @@ A powerful extension that provides **27 ready-to-use UI components** with React-
 - No build tools required (CDN-based)
 
 See [[WV2React Framework]] for complete documentation.
+
+### WV2_Chart (Chart.js)
+
+Data visualization with Chart.js:
+- Line, Bar, Pie, Doughnut, Radar, Polar Area Charts
+- Real-time data updates
+- Light/Dark theme support
+- Click event callbacks
+
+See [[WV2_Chart]] for complete documentation.
+
+### WV2_Animation (Anime.js)
+
+Powerful animations with Anime.js:
+- Property animations (translate, rotate, scale, opacity)
+- Timeline system for sequences
+- Stagger effects for multiple elements
+- SVG path drawing and morphing
+- 30+ easing functions
+
+See [[WV2_Animation]] for complete documentation.
 
 ---
 
@@ -119,15 +144,22 @@ Works with React, Vue, Angular, and other modern JavaScript frameworks.
 ## File Structure
 
 ```
-Include/
-├── WebView2_Native.au3      # Core WebView2 functions
-├── WebView2_Runtime.au3     # Runtime detection/installation
-├── WebView2_Callbacks.au3   # COM callback handlers
-├── WebView2_COM.au3         # COM interface definitions
-├── WebView2Loader_x64.dll   # Microsoft loader (64-bit)
-├── WebView2Loader_x86.dll   # Microsoft loader (32-bit)
-├── WebView2Helper_x64.dll   # Helper DLL (64-bit)
-└── WebView2Helper_x86.dll   # Helper DLL (32-bit)
+WebView2-UDF/
+├── Include/                    # Core UDF files
+│   ├── WebView2_Native.au3
+│   ├── WebView2_Runtime.au3
+│   ├── WebView2_Callbacks.au3
+│   └── WebView2_COM.au3
+├── bin/                        # All DLLs (central location)
+│   ├── WebView2Loader_x64.dll
+│   ├── WebView2Loader_x86.dll
+│   ├── WebView2Helper_x64.dll
+│   └── WebView2Helper_x86.dll
+├── ReactFramework/             # WV2React UI components
+├── Extensions/                 # Additional extensions
+│   ├── WV2_Chart/              # Chart.js integration
+│   └── WV2_Animation/          # Anime.js integration
+└── SQLiteManager/              # Showcase application
 ```
 
 ---
